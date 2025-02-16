@@ -23,30 +23,23 @@ export const getStoryInfo = async (storyID: string): Promise<Story | null> => {
     }
 };
 
-// getStoryInfo("67b1a9da5767b1e50eb6e3e2")
+// getStoryInfo("67b1d54ebf6799ed9bc54075")
 
 /* 
 
 Example Response
 
 {
-  _id: '67b1a9da5767b1e50eb6e3e2',
-  text: `Once upon a time, in a quiet little village, there lived a tiny kitten named Whiskers. She had soft, silvery fur and big, bright eyes. Whiskers loved 
-  chasing butterflies in the garden, but she always wondered what was beyond the old wooden gate. One night, under a big, glowing moon, Whiskers saw something 
-  sparkle near the stone wall. Curious, she padded over and found a tiny door hidden in the vines! She gave it a little push with her paw, and—creak!—the door 
-  opened. Inside was a magical garden, glowing in the moonlight! The flowers twinkled, and soft whispers floated through the air. As Whiskers explored, she met 
-  Flicker, a friendly firefly whose little light danced beside her. "Come with me!" said Flicker, zipping ahead. Whiskers followed Flicker past bubbling brooks 
-  and under archways of glowing vines. Soon, they reached a quiet clearing, where a shiny flower stood tall. The flower’s petals slowly opened, and in a gentle 
-  whisper, it shared a secret: "True magic is not just what you see—it's in being brave and kind." Whiskers smiled, feeling warm and happy inside. She thanked 
-  Flicker and padded back home, her little heart filled with wonder. Even though she was back in her own garden, Whiskers knew she had discovered something 
-  special. From that night on, she always remembered: Kindness and courage make the world more magical!`,
-  
-  title: 'Whiskers and the Secret Garden',
-  name: 'cat',
+  _id: '67b1d54ebf6799ed9bc54075',
+  text: 'Once upon a time, in a happy little town, there lived a small dog named Buddy. He had shiny eyes and a curious heart. Every day, he chased butterflies, sniffed flowers, and dreamed of exciting adventures. One morning, Buddy found a crinkled old map under a pile of leaves. The map had shiny stars and a twisting path leading to a secret place called the Enchanted Meadow. Buddy’s tail wagged with 
+excitement—it was time for an adventure! With the map in his mouth, Buddy trotted through town and into a whispering forest. There, he met Oliver the wise owl. "Trust your heart, little one," said Oliver. "The path will show itself." Buddy smiled and kept going. But—oh no!—a big gust of wind blew the map away! Luckily, a friendly squirrel named Nutty saw what happened. "I’ll get it!" Nutty scampered up 
+a tree and grabbed the map. "Thank you, Nutty!" Buddy barked happily. Together, they followed the path until they reached the Enchanted Meadow. The grass sparkled, the flowers danced, and in the middle stood a giant oak tree with a tiny door. Buddy gave a brave bark and knocked. The door creaked open, and inside, a cozy secret room twinkled with lights! On a soft cushion, Buddy found a note from Hazel the hedgehog: "Every adventure teaches us something new. With courage and good friends, you can find magic anywhere!" Buddy’s heart felt warm and happy. He had found a beautiful place, but more importantly, he had made a new friend and learned that bravery and kindness make every adventure special. As the stars twinkled above, Buddy and Nutty trotted home, ready for more magical adventures to come!',    
+  title: 'Buddy’s Amazing Trip',
+  name: 'dog',
   category: 'animals',
-  thumbnailURL: 'http://192.236.195.254/storyland/thumbnails/cat_thumbnail.jpg',
-  imageURL: 'http://192.236.195.254/storyland/backgrounds/cat_bg.jpg',
-  audioURL: 'http://192.236.195.254/storyland/audios/cat_audio.mp3',
+  thumbnailURL: 'http://192.236.195.254/storyland/thumbnails/dog_thumbnail.jpg',
+  imageURL: 'http://192.236.195.254/storyland/backgrounds/dog_bg.jpg',
+  audioURL: 'http://192.236.195.254/storyland/audios/dog_audio.mp3',
   __v: 0
 }
 
