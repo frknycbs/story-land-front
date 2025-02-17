@@ -6,6 +6,7 @@ import type { RootStackParamList } from '../../App';
 import { getCategoryInfo } from '../api/getCategoryInfo';
 import { CategoryInfo } from '../types';
 import { styles } from './HomePage.styles';
+import getCachedResource from '../utils/getCachedResource';
 
 export const HomePage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -13,8 +14,11 @@ export const HomePage = () => {
 
   useEffect(() => {
     const loadCategories = async () => {
-      const data = await getCategoryInfo();
+      const data: Array<CategoryInfo> | null = await getCategoryInfo();
       if (data) {
+        for(const elem of data)
+            elem.bgImageURL = await getCachedResource(elem.bgImageURL);
+        
         console.log('Categories loaded:', data);
         setCategories(data);
         

@@ -6,6 +6,7 @@ import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
 import { Story, CategoryInfo } from '../types';
 import { styles } from './CategoryPage.styles';
+import getCachedResource from '../utils/getCachedResource';
 
 type CategoryPageProps = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
@@ -17,7 +18,13 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
   useEffect(() => {
     const loadStories = async () => {
       const data: Story[] | null = await getStoriesByCategory(categoryInfo.categoryName);
-      if (data) setStories(data);
+      if (data) {
+        for(const story of data) 
+            story.thumbnailURL = await getCachedResource(story.thumbnailURL);
+        
+        console.log('Stories loaded:', data);
+        setStories(data);
+      }
     };
     loadStories();
   }, [categoryInfo.categoryName]);
