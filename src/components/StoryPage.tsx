@@ -13,8 +13,8 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const { story }: { story: Story } = route.params;
     const [isPlaying, setIsPlaying] = useState(false);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const [cachedImageURL, setCachedImageURL] = useState(story.imageURL);
-    const [cachedAudioURL, setCachedAudioURL] = useState(story.audioURL);
+    const [cachedImageURL, setCachedImageURL] = useState<string>("");
+    const [cachedAudioURL, setCachedAudioURL] = useState<string>("");
 
     // Load sound when component mounts
     useEffect(() => {
@@ -28,7 +28,6 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     }, [sound]);
 
     useEffect(() => {
-
         const loadStoryResources = async () => {
             const image = await getCachedResource(story.imageURL);
             const audio = await getCachedResource(story.audioURL);
@@ -40,7 +39,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         }
 
         loadStoryResources();
-    }, [cachedImageURL, cachedAudioURL]); // Runs when cachedImageURL or cachedAudioURL updates
+    }, []);
 
     const handlePress = async () => {
         if (!sound) {
@@ -79,14 +78,14 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             style={styles.container}
             resizeMode="cover"
         >
-            <TouchableOpacity
+            {cachedAudioURL !== "" && <TouchableOpacity
                 style={styles.playButton}
                 onPress={() => handlePress()}
             >
                 <Text style={styles.buttonText}>
                     {isPlaying ? '⏸ Pause' : '▶ Play'}
                 </Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
         </ImageBackground>
     );
 };
