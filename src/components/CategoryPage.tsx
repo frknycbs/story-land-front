@@ -24,7 +24,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
 
   return (
     <ImageBackground
-      source={{ uri: stories[0]?.imageURL }}
+      source={{ uri: categoryInfo.bgImageURL }}
       style={styles.container}
     >
       <View style={styles.grid}>
