@@ -20,7 +20,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <AdMobBanner
-        bannerAdUnitId="YOUR_AD_UNIT_ID"
+        bannerAdUnitId="ca-app-pub-3940256099942544/6300978111"
         servePersonalizedAds // true or false
         style={{ marginTop: 10 }}
       />
