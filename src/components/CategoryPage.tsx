@@ -27,7 +27,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
       }
     };
     loadStories();
-  }, [categoryInfo.categoryName]);
+  }, []);
 
   return (
     <ImageBackground
