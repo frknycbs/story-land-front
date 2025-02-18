@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, TouchableOpacity, ImageBackground } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
