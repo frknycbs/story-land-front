@@ -6,6 +6,7 @@ import type { RootStackParamList } from '../../App';
 import { Story } from '../types';
 import { styles } from './StoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
+import { TestIds, useRewardedInterstitialAd } from 'react-native-google-mobile-ads';
 
 type StoryPageProps = NativeStackScreenProps<RootStackParamList, 'Story'>;
 
@@ -15,6 +16,16 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [cachedImageURL, setCachedImageURL] = useState<string>("");
     const [cachedAudioURL, setCachedAudioURL] = useState<string>("");
+
+    const { isLoaded, isClosed, load, show } = useRewardedInterstitialAd(TestIds.REWARDED_INTERSTITIAL, {
+        requestNonPersonalizedAdsOnly: true,
+      });
+
+    useEffect(() => {
+        console.log("Loading Rewarded Interstitial ad...");
+        load(); // Start loading the ad
+    
+    }, [load]); // Load the ad only once when component mounts
 
     // Load sound when component mounts
     useEffect(() => {
@@ -41,7 +52,21 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         loadStoryResources();
     }, []);
 
-    const handlePress = async () => {
+    useEffect(() => {
+    if (isClosed) {
+        // Action after the ad is closed
+        console.log("Rewarded Interstitial Ad closed, continue to story screen")
+    }
+    }, [isClosed]);
+
+    const handlePlayStoryAudio = async () => {
+
+        if(!isClosed) {
+            isLoaded ? show() : console.log("Ad not loaded yet")
+            return
+        }
+            
+
         if (!sound) {
             // Load the sound if it hasn't been loaded yet
             try {
@@ -80,7 +105,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         >
             {cachedAudioURL !== "" && <TouchableOpacity
                 style={styles.playButton}
-                onPress={() => handlePress()}
+                onPress={() => handlePlayStoryAudio()}
             >
                 <Text style={styles.buttonText}>
                     {isPlaying ? '⏸ Pause' : '▶ Play'}

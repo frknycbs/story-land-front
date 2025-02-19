@@ -15,7 +15,7 @@ export const getStoriesByCategory = async (category: string): Promise<Array<Stor
         if(!response.data)
             throw("No response data found")
 
-        console.log("Stories in category:" , response.data);
+        // console.log("Stories in category:" , response.data);
         return response.data;
     } catch (error: any) {
         console.error("Error fetching story info:", error.status ? error.response.data : error);
