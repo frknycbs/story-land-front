@@ -8,7 +8,7 @@ import { CategoryInfo } from '../types';
 import { styles } from './HomePage.styles';
 import getCachedResource from '../utils/getCachedResource';
 import { AdBanner } from './ads/AdBanner';
-import { TestIds, useInterstitialAd } from 'react-native-google-mobile-ads';
+import { TestIds, useInterstitialAd} from 'react-native-google-mobile-ads';
 
 export const HomePage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -63,9 +63,10 @@ export const HomePage = () => {
                     setCurrentCategoryInfo(category)
                     show(); // Show the ad only when it is fully loaded
                 } else {
-                    console.log("Interstitial Ad not loaded yet...");
+                    console.log("Interstitial Ad not loaded yet -- skipping and navigating to Category");
+                    navigation.navigate('Category', { categoryInfo: category });
                 }
-                // navigation.navigate('Category', { categoryInfo: category });
+                
             }}
           >
             <ImageBackground

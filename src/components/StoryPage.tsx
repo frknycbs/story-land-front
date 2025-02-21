@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, TouchableOpacity, ImageBackground, Text } from 'react-native';
+import { View, TouchableOpacity, ImageBackground, Text, ScrollView, Image } from 'react-native';
 import { Audio } from 'expo-av';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { Story } from '../types';
 import { styles } from './StoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
 import { TestIds, useRewardedInterstitialAd } from 'react-native-google-mobile-ads';
+import { useNavigation } from '@react-navigation/native';
 
 type StoryPageProps = NativeStackScreenProps<RootStackParamList, 'Story'>;
 
@@ -16,20 +17,21 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [cachedImageURL, setCachedImageURL] = useState<string>("");
     const [cachedAudioURL, setCachedAudioURL] = useState<string>("");
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     const { isLoaded, isClosed, load, show } = useRewardedInterstitialAd(TestIds.REWARDED_INTERSTITIAL, {
         requestNonPersonalizedAdsOnly: true,
-      });
+    });
 
     useEffect(() => {
         console.log("Loading Rewarded Interstitial ad...");
         load(); // Start loading the ad
-    
+
     }, [load]); // Load the ad only once when component mounts
 
     // Load sound when component mounts
     useEffect(() => {
-        
+
         return () => {
             // Cleanup function to unload sound when component unmounts
             if (sound) {
@@ -53,19 +55,19 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     }, []);
 
     useEffect(() => {
-    if (isClosed) {
-        // Action after the ad is closed
-        console.log("Rewarded Interstitial Ad closed, continue to story screen")
-    }
+        if (isClosed) {
+            // Action after the ad is closed
+            console.log("Rewarded Interstitial Ad closed, continue to story screen")
+        }
     }, [isClosed]);
 
     const handlePlayStoryAudio = async () => {
 
-        if(!isClosed) {
+        if (!isClosed) {
             isLoaded ? show() : console.log("Ad not loaded yet")
             return
         }
-            
+
 
         if (!sound) {
             // Load the sound if it hasn't been loaded yet
@@ -98,11 +100,18 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     };
 
     return (
-        <ImageBackground
-            source={{ uri: cachedImageURL }}
-            style={styles.container}
-            resizeMode="cover"
-        >
+        <View style={styles.container}>
+            {/* Back Arrow */}
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+            >
+                <Image
+                    source={require('../assets/images/back_arrow.png')}
+                    style={styles.backArrowImage}
+                />
+            </TouchableOpacity>
+
             {cachedAudioURL !== "" && <TouchableOpacity
                 style={styles.playButton}
                 onPress={() => handlePlayStoryAudio()}
@@ -111,6 +120,21 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     {isPlaying ? '⏸ Pause' : '▶ Play'}
                 </Text>
             </TouchableOpacity>}
-        </ImageBackground>
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.scrollContainer}
+                contentContainerStyle={{ alignItems: 'center' }} // Ensure proper alignment
+            >
+                <ImageBackground
+                    source={{ uri: cachedImageURL }}
+                    style={styles.imageBackground}
+                    resizeMode="cover"
+                />
+            </ScrollView>
+        </View>
     );
 };
+
+

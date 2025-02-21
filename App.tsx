@@ -8,6 +8,7 @@ import { SplashPage } from './src/components/SplashPage';
 import { CategoryInfo, Story } from './src/types';
 import mobileAds from 'react-native-google-mobile-ads';
 import { TestIds, useAppOpenAd } from 'react-native-google-mobile-ads';
+import { LandingPage } from './src/components/LandingPage';
 
 mobileAds()
   .setRequestConfiguration({
@@ -20,6 +21,7 @@ mobileAds()
 
 export type RootStackParamList = {
   Splash: undefined;
+  Landing: undefined;
   Home: undefined;
   Category: { categoryInfo: CategoryInfo };
   Story: { story: Story };
@@ -35,7 +37,6 @@ export const App = () => {
         useEffect(() => {
             console.log("Loading App Open ad...");
             load(); // Start loading the ad
-          
           }, [load]); // Load the ad only once when component mounts
           
           useEffect(() => {
@@ -57,8 +58,10 @@ export const App = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
+                
                 <Stack.Screen name="Splash" component={SplashPage} />
-                <Stack.Screen name="Home" component={HomePage} />
+                <Stack.Screen name="Landing" component={LandingPage} />
+                
                 <Stack.Screen name="Category" component={CategoryPage} />
                 <Stack.Screen name="Story" component={StoryPage} />
             </Stack.Navigator>
