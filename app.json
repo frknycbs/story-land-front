@@ -17,7 +17,8 @@
                 "foregroundImage": "./src/assets/images/storyland_logo.png",
                 "backgroundColor": "#ffffff"
             },
-            "package": "com.j_terry.StoryLandFront"
+            "package": "com.j_terry.StoryLandFront",
+            "owner" : "j_terry"
         },
         "ios": {
             "supportsTablet": true
