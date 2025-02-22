@@ -14,10 +14,10 @@ import { styles } from './LandingPage.styles';
 export const LandingPage = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
-  const [currentCategoryInfo, setCurrentCategoryInfo] = useState<CategoryInfo | null>(null);
-  const { isLoaded, isClosed, load, show } = useInterstitialAd(TestIds.INTERSTITIAL, {
-    requestNonPersonalizedAdsOnly: true,
-  });
+  // const [currentCategoryInfo, setCurrentCategoryInfo] = useState<CategoryInfo | null>(null);
+  // const { isLoaded, isClosed, load, show } = useInterstitialAd(TestIds.INTERSTITIAL, {
+  //   requestNonPersonalizedAdsOnly: true,
+  // });
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -31,6 +31,7 @@ export const LandingPage = () => {
     loadCategories();
   }, []);
 
+  /*
   useEffect(() => {
     load(); 
   }, [load]); 
@@ -40,6 +41,7 @@ export const LandingPage = () => {
       navigation.navigate('Category', { categoryInfo: currentCategoryInfo });
     }
   }, [isClosed, navigation]);
+  */
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -57,6 +59,8 @@ export const LandingPage = () => {
             style={styles.categoryButton}
             onPress={() => {
               console.log('Category pressed:', category.categoryName);
+              navigation.navigate('Category', { categoryInfo: category });
+              /*
               if (isLoaded) {
                 console.log("Interstitial Ad loaded, showing...");
                 setCurrentCategoryInfo(category);
@@ -64,7 +68,7 @@ export const LandingPage = () => {
               } else {
                 console.log("Interstitial Ad not loaded yet -- navigating directly to CategoryPage");
                 navigation.navigate('Category', { categoryInfo: category });
-              }
+              }*/
             }}
           >
             <View style={styles.categoryImageWrapper}> 
@@ -84,7 +88,7 @@ export const LandingPage = () => {
         </View>
         
         {/* Ads */}
-        <AdBanner />
+        
       </LinearGradient>
     </SafeAreaView>
   );

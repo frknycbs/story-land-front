@@ -19,6 +19,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [cachedAudioURL, setCachedAudioURL] = useState<string>("");
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+    /*
     const { isLoaded, isClosed, load, show } = useRewardedInterstitialAd(TestIds.REWARDED_INTERSTITIAL, {
         requestNonPersonalizedAdsOnly: true,
     });
@@ -29,6 +30,14 @@ export const StoryPage = ({ route }: StoryPageProps) => {
 
     }, [load]); // Load the ad only once when component mounts
 
+     useEffect(() => {
+        if (isClosed) {
+            // Action after the ad is closed
+            console.log("Rewarded Interstitial Ad closed, continue to story screen")
+        }
+    }, [isClosed]);
+
+    */
     // Load sound when component mounts
     useEffect(() => {
 
@@ -54,19 +63,15 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         loadStoryResources();
     }, []);
 
-    useEffect(() => {
-        if (isClosed) {
-            // Action after the ad is closed
-            console.log("Rewarded Interstitial Ad closed, continue to story screen")
-        }
-    }, [isClosed]);
+   
 
     const handlePlayStoryAudio = async () => {
 
+        /*
         if (!isClosed) {
             isLoaded ? show() : console.log("Ad not loaded yet")
             return
-        }
+        } */
 
 
         if (!sound) {

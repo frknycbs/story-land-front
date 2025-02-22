@@ -11,6 +11,8 @@ import { AdNative } from './ads/AdNative';
 export const SplashPage = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    
+    /*
     const { isLoaded, isClosed, load, show } = useRewardedAd(TestIds.REWARDED, {
         requestNonPersonalizedAdsOnly: true,
     });
@@ -43,14 +45,15 @@ export const SplashPage = () => {
         }
     }, [isClosed, navigation]);
 
+    */
 
-    /*
+    
   useEffect(() => {
       // After 2-3 seconds, hide the splash screen and navigate to Home
       setTimeout(() => {
-          navigation.navigate('Home'); // Navigate to Home Screen
+          navigation.navigate('Landing'); // Navigate to Home Screen
       }, 3000); // 3 seconds delay
-  }, []); */
+  }, []); 
 
 
     return (
@@ -58,8 +61,8 @@ export const SplashPage = () => {
             <Image source={require('../assets/images/storyland_logo.png')} style={styles.logo} />
             <Image source={require('../assets/images/storyland_text.png')} style={styles.logoText} />
 
-            <AdBanner />
-            <AdNative />
+            {/* <AdBanner />
+            <AdNative /> */}
 
         </LinearGradient>
     );

@@ -30,6 +30,8 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const App = () => {
+
+    /*
     const { isLoaded, isClosed, load, show } = useAppOpenAd(TestIds.APP_OPEN, {
             requestNonPersonalizedAdsOnly: true,
         });
@@ -55,6 +57,8 @@ export const App = () => {
               console.log("App open Ad closed")
             }
           }, [isClosed]);
+
+          */
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>

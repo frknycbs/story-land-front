@@ -15,25 +15,12 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { categoryInfo }: { categoryInfo: CategoryInfo } = route.params;
     const [stories, setStories] = useState<Story[]>([]);
-    const [currentStory, setCurrentStory] = useState<Story | null>(null);
+    // const [currentStory, setCurrentStory] = useState<Story | null>(null);
 
+    /*
     const { isLoaded, isClosed, load, show } = useInterstitialAd(TestIds.INTERSTITIAL, {
         requestNonPersonalizedAdsOnly: true,
     });
-
-    useEffect(() => {
-        const loadStories = async () => {
-            const data: Story[] | null = await getStoriesByCategory(categoryInfo.categoryName);
-            if (data) {
-                for (const story of data)
-                    story.thumbnailURL = await getCachedResource(story.thumbnailURL);
-
-                // console.log('Stories loaded:', data);
-                setStories(data);
-            }
-        };
-        loadStories();
-    }, []);
 
     useEffect(() => {
         console.log("Loading Interstitial ad...");
@@ -49,6 +36,24 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 navigation.navigate('Story', { story: currentStory });
         }
     }, [isClosed, navigation]);
+
+    */
+
+    useEffect(() => {
+        const loadStories = async () => {
+            const data: Story[] | null = await getStoriesByCategory(categoryInfo.categoryName);
+            if (data) {
+                for (const story of data)
+                    story.thumbnailURL = await getCachedResource(story.thumbnailURL);
+
+                // console.log('Stories loaded:', data);
+                setStories(data);
+            }
+        };
+        loadStories();
+    }, []);
+
+    
 
     return (
         <>
@@ -85,6 +90,9 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                                 key={story._id}
                                 style={styles.thumbnail}
                                 onPress={() => {
+
+                                    navigation.navigate('Story', { story: story });
+                                    /*
                                     if (isLoaded) {
                                         console.log("Interstitial Ad loaded, showing...");
                                         setCurrentStory(story);
@@ -95,7 +103,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                                         console.log("Interstitial Ad not loaded yet -- switching to Story");
                                         navigation.navigate('Story', { story: story });
                                     }
-
+                                    */
 
                                 }}
                             >
