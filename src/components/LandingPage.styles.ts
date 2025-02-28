@@ -1,18 +1,26 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+// Calculate dimensions for a 2x2 grid with slightly narrower width
+const categoryWidth = width / 2 -2; // Further reduced width to ensure two images fit in a row
+const categoryHeight = height / 2 - 20; // Half the screen height minus some margin
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
     alignItems: 'center', // Centers everything horizontally
   },
   background: {
-    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   kittenImageContainer: {
     alignItems: 'center',
     marginBottom: 10,
+    zIndex: 1,
   },
   kittenImage: {
     width: 130,
@@ -20,55 +28,71 @@ export const styles = StyleSheet.create({
     borderRadius: 65,
     borderWidth: 3, // Black border around the kitten image
     borderColor: '#000',
+    zIndex: 10,
+    position: 'absolute',
+    top: 50,
   },
   welcomeText: {
-    marginTop: 10,
-    marginBottom: 20,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    marginTop: 20,
+    marginBottom: 20,
     textAlign: 'center',
-    textShadowColor: '#000', // Adds depth to the text
-    textShadowOffset: { width: 2, height: 1 },
-    textShadowRadius: 4,
-    fontFamily: 'Comic Sans MS', // A warm, cartoonish font (ensure it's supported or use a custom font)
+    color: '#fff', // White text for better contrast against space background
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10
   },
   grid: {
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    paddingTop: 80,
+  },
+  categoryRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 18,
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
   categoryButton: {
-    width: '45%',
-    height: 140,
-    borderRadius: 22,
+    width: categoryWidth,
+    height: categoryHeight,
+    margin: 0,
+    borderRadius: 10,
     overflow: 'hidden',
+    elevation: 5, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    borderWidth: 3,
+    borderColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent white border
   },
   categoryImageWrapper: {
-    borderRadius: 25,  // Round corners
-    overflow: 'hidden', // Ensure borderRadius applies
-    borderWidth: 4, // Black border
-    borderColor: 'black',
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    overflow: 'hidden',
   },
-  
   categoryImage: {
     width: '100%',
     height: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end', // Align child (text) to bottom
   },
   categoryNameContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 8,
-    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Semi-transparent black background
+    padding: 10,
   },
   categoryName: {
     color: '#fff',
-    fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16,
   },
   adContainer: {
     alignItems: 'center',
-    marginVertical: 10,
+    marginTop: 20,
   },
 });

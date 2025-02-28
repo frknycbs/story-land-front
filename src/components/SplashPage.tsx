@@ -1,70 +1,79 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect } from 'react';
-import { Image, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, SafeAreaView, ImageBackground } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from '../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LinearGradient } from 'expo-linear-gradient';
-import { AdBanner } from './ads/AdBanner';
-import { TestIds, useRewardedAd } from 'react-native-google-mobile-ads';
-import { AdNative } from './ads/AdNative';
+import { getCategoryInfo } from '../api/getCategoryInfo';
+import getCachedResource from '../utils/getCachedResource';
+import { CategoryInfo } from '../types';
 
 export const SplashPage = () => {
-
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    
-    /*
-    const { isLoaded, isClosed, load, show } = useRewardedAd(TestIds.REWARDED, {
-        requestNonPersonalizedAdsOnly: true,
-    });
+    const [resourcesLoaded, setResourcesLoaded] = useState(false);
+    const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+    const [loadedCategories, setLoadedCategories] = useState<CategoryInfo[]>([]);
 
+    // Load resources
     useEffect(() => {
-        console.log("Loading Rewarded Ad...");
-        load(); // Start loading the ad
-    }, [load]); // Load the ad only once when component mounts
+        const loadResources = async () => {
+            try {
+                // Load categories and images
+                const data = await getCategoryInfo();
+                if (data) {
+                    // Preload images
+                    const processedData = [...data];
+                    for (const elem of processedData) {
+                        elem.bgImageURL = await getCachedResource(elem.bgImageURL);
+                    }
+                    setLoadedCategories(processedData);
+                }
+                // Mark resources as loaded
+                setResourcesLoaded(true);
+            } catch (error) {
+                console.error('Error loading resources:', error);
+                // Even if there's an error, we'll consider resources "loaded" to prevent getting stuck
+                setResourcesLoaded(true);
+            }
+        };
 
+        loadResources();
+    }, []);
+
+    // Ensure minimum display time of 2 seconds
     useEffect(() => {
-        if (isLoaded) {
-            console.log("Rewarded Ad loaded, showing...");
+        const timer = setTimeout(() => {
+            setMinTimeElapsed(true);
+        }, 2000); // 2 seconds minimum display time
 
-            setTimeout(() => {
-                show() // Show the ad only when it is fully loaded
-                console.log("Rewarded ad is being shown...");
-            }, 10000);
-        } else console.log("Rewarded Ad not loaded yet");
-                
-            
-        
-    }, [isLoaded]); // Runs whenever `isLoaded` changes
+        return () => clearTimeout(timer);
+    }, []);
 
-
+    // Navigate to Landing when both conditions are met
     useEffect(() => {
-        if (isClosed) {
-            // Action after the ad is closed
-            console.log("Rewarded Ad closed, switching to Landing...")
-            navigation.navigate('Landing');
+        if (resourcesLoaded && minTimeElapsed) {
+            navigation.reset({
+                index: 0,
+                routes: [{ 
+                    name: 'Landing',
+                    params: { categories: loadedCategories }
+                }],
+            });
         }
-    }, [isClosed, navigation]);
-
-    */
-
-    
-  useEffect(() => {
-      // After 2-3 seconds, hide the splash screen and navigate to Home
-      setTimeout(() => {
-          navigation.navigate('Landing'); // Navigate to Home Screen
-      }, 3000); // 3 seconds delay
-  }, []); 
-
+    }, [resourcesLoaded, minTimeElapsed, navigation, loadedCategories]);
 
     return (
-        <LinearGradient colors={['#ffc900', '#ff6f00']} style={styles.container}>
-            <Image source={require('../assets/images/storyland_logo.png')} style={styles.logo} />
-            <Image source={require('../assets/images/storyland_text.png')} style={styles.logoText} />
-
-            {/* <AdBanner />
-            <AdNative /> */}
-
-        </LinearGradient>
+        <SafeAreaView style={{ flex: 1 }}>
+            <StatusBar translucent backgroundColor="transparent" style="light" />
+            <ImageBackground 
+                source={require('../assets/images/spaceBG.jpeg')} 
+                style={styles.container}
+                resizeMode="cover"
+            >
+                <Image source={require('../assets/images/storyland_logo.png')} style={styles.logo} />
+                <Image source={require('../assets/images/storyland_text.png')} style={styles.logoText} />
+            </ImageBackground>
+        </SafeAreaView>
     );
 };
 

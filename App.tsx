@@ -21,7 +21,7 @@ mobileAds()
 
 export type RootStackParamList = {
   Splash: undefined;
-  Landing: undefined;
+  Landing: { categories?: CategoryInfo[] };
   Home: undefined;
   Category: { categoryInfo: CategoryInfo };
   Story: { story: Story };
@@ -63,8 +63,22 @@ export const App = () => {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 
-                <Stack.Screen name="Splash" component={SplashPage} />
-                <Stack.Screen name="Landing" component={LandingPage} />
+                <Stack.Screen 
+                    name="Splash" 
+                    component={SplashPage} 
+                    options={{ 
+                        gestureEnabled: false,
+                        headerBackVisible: false
+                    }}
+                />
+                <Stack.Screen 
+                    name="Landing" 
+                    component={LandingPage}
+                    options={{ 
+                        gestureEnabled: true,
+                        headerBackVisible: false
+                    }}
+                />
                 
                 <Stack.Screen name="Category" component={CategoryPage} />
                 <Stack.Screen name="Story" component={StoryPage} />

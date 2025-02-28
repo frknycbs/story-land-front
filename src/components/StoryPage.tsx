@@ -105,40 +105,40 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Back Arrow */}
-            <TouchableOpacity
-                style={styles.backButton}
+            <View style={styles.container}>
+                {/* Back Arrow */}
+                <TouchableOpacity
+                    style={styles.backButton}
                 onPress={() => navigation.goBack()}
-            >
-                <Image
-                    source={require('../assets/images/back_arrow.png')}
-                    style={styles.backArrowImage}
-                />
-            </TouchableOpacity>
+                >
+                    <Image
+                        source={require('../assets/images/back_arrow.png')}
+                        style={styles.backArrowImage}
+                    />
+                </TouchableOpacity>
 
-            {cachedAudioURL !== "" && <TouchableOpacity
-                style={styles.playButton}
-                onPress={() => handlePlayStoryAudio()}
-            >
-                <Text style={styles.buttonText}>
-                    {isPlaying ? '⏸ Pause' : '▶ Play'}
-                </Text>
-            </TouchableOpacity>}
+                {cachedAudioURL !== "" && <TouchableOpacity
+                    style={styles.playButton}
+                    onPress={() => handlePlayStoryAudio()}
+                >
+                    <Text style={styles.buttonText}>
+                        {isPlaying ? '⏸ Pause' : '▶ Play'}
+                    </Text>
+                </TouchableOpacity>}
 
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.scrollContainer}
-                contentContainerStyle={{ alignItems: 'center' }} // Ensure proper alignment
-            >
-                <ImageBackground
-                    source={{ uri: cachedImageURL }}
-                    style={styles.imageBackground}
-                    resizeMode="cover"
-                />
-            </ScrollView>
-        </View>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.scrollContainer}
+                    contentContainerStyle={{ alignItems: 'center' }} // Ensure proper alignment
+                >
+                    <ImageBackground
+                        source={{ uri: cachedImageURL }}
+                        style={styles.imageBackground}
+                        resizeMode="cover"
+                    />
+                </ScrollView>
+            </View>
     );
 };
 
