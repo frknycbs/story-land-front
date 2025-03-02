@@ -1,43 +1,37 @@
 {
-    "expo": {
-        "name": "StoryLandFront",
-        "slug": "StoryLandFront",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./src/assets/images/storyland_logo.png",
-        "userInterfaceStyle": "light",
-        "newArchEnabled": true,
-        "splash": {
-            "image": "./src/assets/images/storyland_logo.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./src/assets/images/storyland_logo.png",
-                "backgroundColor": "#ffffff"
-            },
-            "package": "com.j_terry.StoryLandFront",
-            "owner" : "j_terry"
-        },
-        "ios": {
-            "supportsTablet": true
-        },
-        "web": {
-            "favicon": "./src/assets/images/storyland_logo.png"
-        },
-        "extra": {
-            "eas": {
-                "projectId": "0af114e6-4624-4a80-b8a2-ca5fc7b9c57a"
-            }
-        },
-        "plugins": [
-            [
-                "react-native-google-mobile-ads",
-                {
-                    "androidAppId": "ca-app-pub-3890240560936767~3343247587"
-                }
-            ]
-        ]
-    }
+  "expo": {
+    "name": "StoryLandFront",
+    "slug": "StoryLandFront",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./src/assets/images/storyland_logo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./src/assets/images/storyland_logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/storyland_logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.j_terry.StoryLandFront",
+      "owner": "j_terry"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "web": {
+      "favicon": "./src/assets/images/storyland_logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0af114e6-4624-4a80-b8a2-ca5fc7b9c57a"
+      }
+    },
+    "plugins": ["react-native-iap"],
+    "owner": "j_terry"
+  }
 }

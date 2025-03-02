@@ -1,4 +1,4 @@
-import { View } from "react-native";
+/*import { View } from "react-native";
 import { BannerAd, BannerAdSize, TestIds } from "react-native-google-mobile-ads";
 
 export const AdBanner = () => {
@@ -14,3 +14,4 @@ export const AdBanner = () => {
     </View>
   );
 }
+*/

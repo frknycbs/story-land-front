@@ -7,12 +7,16 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getCategoryInfo } from '../api/getCategoryInfo';
 import getCachedResource from '../utils/getCachedResource';
 import { CategoryInfo } from '../types';
+import { useFonts } from 'expo-font';
 
 export const SplashPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [resourcesLoaded, setResourcesLoaded] = useState(false);
     const [minTimeElapsed, setMinTimeElapsed] = useState(false);
     const [loadedCategories, setLoadedCategories] = useState<CategoryInfo[]>([]);
+    const [fontsLoaded] = useFonts({
+        'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
+    });
 
     // Load resources
     useEffect(() => {
@@ -51,7 +55,7 @@ export const SplashPage = () => {
 
     // Navigate to Landing when both conditions are met
     useEffect(() => {
-        if (resourcesLoaded && minTimeElapsed) {
+        if (resourcesLoaded && minTimeElapsed && fontsLoaded) {
             navigation.reset({
                 index: 0,
                 routes: [{ 

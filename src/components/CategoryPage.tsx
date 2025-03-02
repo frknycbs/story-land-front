@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
-import { View, TouchableOpacity, ImageBackground, ScrollView, Image } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { View, TouchableOpacity, ImageBackground, ScrollView, Image, FlatList, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
 import { Story, CategoryInfo } from '../types';
-import { styles } from './CategoryPage.styles';
+import { getStyles } from './CategoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
-import { TestIds, useInterstitialAd } from 'react-native-google-mobile-ads';
+import { useScreenDimensions } from '../hooks/useDimensions';
+import { getGeneralStyles } from './generalStyles';
 
 type CategoryPageProps = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
@@ -15,29 +16,15 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { categoryInfo }: { categoryInfo: CategoryInfo } = route.params;
     const [stories, setStories] = useState<Story[]>([]);
-    // const [currentStory, setCurrentStory] = useState<Story | null>(null);
+    const { screenWidth, screenHeight } = useScreenDimensions();
 
-    /*
-    const { isLoaded, isClosed, load, show } = useInterstitialAd(TestIds.INTERSTITIAL, {
-        requestNonPersonalizedAdsOnly: true,
-    });
+    const numColumns = useMemo(() => (screenWidth > screenHeight ? 5 : 3), [screenWidth, screenHeight]);
+    // Calculate item width dynamically
+    const itemWidth = screenWidth / numColumns;
+    const styles = getStyles(screenWidth, screenHeight, itemWidth);
 
-    useEffect(() => {
-        console.log("Loading Interstitial ad...");
-        load(); // Start loading the ad
+    const generalStyles = getGeneralStyles(screenWidth, screenHeight);
 
-    }, [load]); // Load the ad only once when component mounts
-
-    useEffect(() => {
-        if (isClosed) {
-            // Action after the ad is closed
-            console.log("Interstitial Ad closed, switching to Story")
-            if (currentStory)
-                navigation.navigate('Story', { story: currentStory });
-        }
-    }, [isClosed, navigation]);
-
-    */
 
     useEffect(() => {
         const loadStories = async () => {
@@ -47,13 +34,13 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                     story.thumbnailURL = await getCachedResource(story.thumbnailURL);
 
                 // console.log('Stories loaded:', data);
-                setStories(data);
+                setStories([...data, ...data.map(story => ({ ...story, _id: Math.random().toString() })), ...data.map(story => ({ ...story, _id: Math.random().toString() }))]);
             }
         };
         loadStories();
     }, []);
 
-    
+
 
     return (
         <>
@@ -65,58 +52,53 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 }}
             >
                 <Image
-                    source={require('../assets/images/back_arrow.png')} // Replace with your back arrow image path
+                    source={require('../assets/images/back_arrow.png')}
                     style={styles.backArrowImage}
                 />
             </TouchableOpacity>
-            <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={{ flexGrow: 1 }}
-                horizontal={true} // Enable horizontal scrolling
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                maximumZoomScale={3} // Allow pinch-zoom
-                minimumZoomScale={1}
-            >
+
+            <Image
+                source={require('../assets/images/storyland_logo.png')}
+                style={generalStyles.logoImage}
+            />
+            <Text style={styles.welcomeText}>
+                Hi there! Pick your friend, and let's start!!
+            </Text>
+
+            <ScrollView horizontal={screenHeight > screenWidth}
+                contentOffset={screenHeight > screenWidth ? { x: (screenHeight - screenWidth) / 2, y: 0 } : { x: 0, y: (screenWidth - screenHeight) / 2 }}
+                showsHorizontalScrollIndicator={false} contentContainerStyle={{}}>
+
                 <ImageBackground
                     source={{ uri: categoryInfo.bgImageURL }}
-                    style={styles.container}
-                    resizeMode="contain" // Ensure the full image is visible
-                >
-
-                    <View style={styles.grid}>
-                        {stories.map((story: Story) => (
-                            <TouchableOpacity
-                                key={story._id}
-                                style={styles.thumbnail}
-                                onPress={() => {
-
-                                    navigation.navigate('Story', { story: story });
-                                    /*
-                                    if (isLoaded) {
-                                        console.log("Interstitial Ad loaded, showing...");
-                                        setCurrentStory(story);
-                                        show();
-                                    }
-
-                                    else {
-                                        console.log("Interstitial Ad not loaded yet -- switching to Story");
-                                        navigation.navigate('Story', { story: story });
-                                    }
-                                    */
-
-                                }}
-                            >
-                                <ImageBackground
-                                    source={{ uri: story.thumbnailURL }}
-                                    style={styles.thumbnailImage}
-                                    resizeMode="cover"
-                                />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    style={styles.imageBackground}
+                    resizeMode="cover">
                 </ImageBackground>
             </ScrollView>
+
+
+            <View style={styles.grid} pointerEvents="box-none">
+                <FlatList
+                    data={stories}
+                    numColumns={numColumns}
+                    key={numColumns}
+                    keyExtractor={(item) => item._id}
+                    renderItem={({ item }) => (
+                        <View style={styles.itemContainer}>
+                            <TouchableOpacity
+                                style={styles.thumbnail}
+                                onPress={() => navigation.navigate('Story', { story: item })}
+                            >
+                                <Image source={{ uri: item.thumbnailURL }} style={styles.thumbnailImage} resizeMode="cover" />
+                            </TouchableOpacity>
+                            <Text style={styles.characterName}>Budy</Text>
+                        </View>
+                    )}
+                    scrollEnabled={false}
+                    contentContainerStyle={styles.listContainer}
+                    columnWrapperStyle={styles.columnWrapper}
+                />
+            </View>
         </>
     );
 };

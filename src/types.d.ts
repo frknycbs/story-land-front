@@ -11,7 +11,8 @@ export type Story = {
 
 export type CategoryInfo = {
     categoryName: Category,
-    bgImageURL: string
+    bgImageURL: string,
+    _id: string
 }
 
 export type Category = 'animals' | 'space' | 'nature' | 'cars'

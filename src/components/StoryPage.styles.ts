@@ -1,17 +1,23 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+
+export const getStyles = (screenWidth: number, screenHeight: number) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'black',
     },
-    scrollContainer: {
-        flexGrow: 1, // Prevents collapsing
-    },
+
     imageBackground: {
-        height: '100%', // Make it fit height
-        aspectRatio: 1, // Maintain original aspect ratio
+        aspectRatio: 1,
+        ...(screenHeight > screenWidth
+            ? { // Portrait mode
+                height: '100%',
+            }
+            : { // Landscape mode
+                width: '100%',
+            }),
     },
+    
     backButton: {
         position: 'absolute',
         top: 20,
@@ -23,29 +29,67 @@ export const styles = StyleSheet.create({
         height: 50,
         resizeMode: 'contain',
     },
+
+    speakerImage: {
+        width: 55,
+        height: 55,
+        resizeMode: 'contain',
+    },
+
+    speakerContainer: {
+        position: 'absolute',
+        top: 20,
+        right: 15,
+        zIndex: 1,
+        // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
     playButton: {
         position: 'absolute',
-        top: '50%', // Start at 50% from the top
-        left: '50%', // Start at 50% from the left
+        top: screenHeight > screenWidth ? '50%' : '45%',
+        left: '45%',
         transform: [{ translateX: -50 }, { translateY: -50 }], // Shift left and up by half its size
         zIndex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        padding: 20,
-        borderRadius: 50,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      buttonText: {
-        fontSize: 24,
-        color: '#8A2BE2', // Purple color to match the theme
-        fontWeight: 'bold',
-        textAlign: 'center'
-      }
-});
+        // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    
+    },
+
+    pauseButton: {
+        position: 'absolute',
+        top: screenHeight > screenWidth ? '51%' : '47%',
+        left: screenHeight > screenWidth ? '49%' : '47%',
+        transform: [{ translateX: -50 }, { translateY: -50 }], // Shift left and up by half its size
+        zIndex: 1,
+        // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    
+    },
+    pauseImage: {
+        width: 120,
+        height: 120,
+        resizeMode: 'contain',
+    },
+
+    playImage: {
+        width: 150,
+        height: 150,
+        resizeMode: 'contain',
+    },
+    progressContainer: {
+        width: screenWidth,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 0,
+    },
+    timeText: {
+        width: '90%',
+        color: '#fff',
+        fontSize: 14,
+        paddingLeft: 20,
+        paddingTop: 10,
+    },
+    slider: {
+        width: '90%',
+        height: 20,
+    },
+  });
 

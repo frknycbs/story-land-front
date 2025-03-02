@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+/*import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { NativeAd, TestIds } from 'react-native-google-mobile-ads';
 
@@ -36,3 +36,4 @@ export const AdNative = () => {
   
  );
 };
+*/

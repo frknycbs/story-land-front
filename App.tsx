@@ -1,23 +1,11 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomePage } from './src/components/HomePage';
 import { CategoryPage } from './src/components/CategoryPage';
 import { StoryPage } from './src/components/StoryPage';
 import { SplashPage } from './src/components/SplashPage';
 import { CategoryInfo, Story } from './src/types';
-import mobileAds from 'react-native-google-mobile-ads';
-import { TestIds, useAppOpenAd } from 'react-native-google-mobile-ads';
 import { LandingPage } from './src/components/LandingPage';
-
-mobileAds()
-  .setRequestConfiguration({
-    testDeviceIdentifiers: ['939f2c2a-d31d-40ee-9020-24607a3ac8bc'], // Replace with your test device ID
-  })
-  .then(() => {
-    console.log("Test device configured!");
-  });
-
 
 export type RootStackParamList = {
   Splash: undefined;
