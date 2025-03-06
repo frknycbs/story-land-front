@@ -15,7 +15,6 @@ export const LandingPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const route = useRoute<RouteProp<RootStackParamList, 'Landing'>>();
     const resources: BackendResource = route.params.resources
-    const [categories, setCategories] = useState<CategoryInfo[]>([]);
     const { screenWidth, screenHeight } = useScreenDimensions();
 
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 3 : 2), [screenWidth, screenHeight]);
@@ -54,10 +53,9 @@ export const LandingPage = () => {
                 {/* Fixed Grid */}
                 <View style={styles.gridWrapper}>
                     <FlatList
-                        data={categories}
+                        data={resources.categoryInfo}
                         numColumns={numColumns}
-                        key={numColumns}
-                        keyExtractor={(item) => item._id}
+                        keyExtractor={(item: CategoryInfo) => item.categoryName}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={styles.thumbnail}

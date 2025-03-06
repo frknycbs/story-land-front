@@ -6,6 +6,7 @@ import getCachedResource from '../utils/getCachedResource';
 
 export const getAllResources = async (availablePurchases: ProductPurchase[]): Promise<BackendResource | null> => {
     try {
+        console.log("girdi")
         if (!availablePurchases) {
             throw new Error("Available purchase list is required");
         }

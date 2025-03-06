@@ -189,7 +189,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                             >
                                 <Image source={{ uri: item.thumbnailURL }} style={styles.thumbnailImage} />
                             </TouchableOpacity>
-                            <Text style={styles.characterName}>Budy</Text>
+                            <Text style={styles.characterName}>{item.characterName}</Text>
                         </View>
                     )}
                     scrollEnabled={false}
@@ -203,7 +203,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                         visible={isModalVisible}
                         onClose={() => {setModalVisible(false); setPurchaseStatus('init');}}
                         item={selectedItem}
-                        productId={"test_product"}
+                        productId={selectedItem._id}
                         handlePurchase={handlePurchase}
                         purchaseStatus={purchaseStatus}
                         setPurchaseStatus={setPurchaseStatus}

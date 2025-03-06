@@ -99,12 +99,12 @@ export const SplashPage = () => {
         };
 
         loadResources();
-    }, []);
+    }, [storeResourcesLoaded]);
 
 
     // Navigate to Landing when both conditions are met
     useEffect(() => {
-        if (resources && storeResourcesLoaded && fontsLoaded) {
+        if (resources && fontsLoaded) {
             navigation.reset({
                 index: 0,
                 routes: [{
@@ -113,7 +113,7 @@ export const SplashPage = () => {
                 }],
             });
         }
-    }, [navigation]);
+    }, [resources, navigation]);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
