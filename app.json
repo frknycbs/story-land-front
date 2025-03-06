@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "StoryLandFront",
-    "slug": "StoryLandFront",
-    "version": "1.0.0",
+    "name": "Storyland",
+    "slug": "storyland",
+    "version": "1.1.0",
     "orientation": "default",
     "icon": "./src/assets/images/storyland_logo.png",
     "userInterfaceStyle": "light",

@@ -4,20 +4,21 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import { CategoryPage } from './src/components/CategoryPage';
 import { StoryPage } from './src/components/StoryPage';
 import { SplashPage } from './src/components/SplashPage';
-import { CategoryInfo, Story } from './src/types';
+import { BackendResource, CategoryInfo, Story } from './src/types';
 import { LandingPage } from './src/components/LandingPage';
+import {withIAPContext} from 'react-native-iap';
 
 export type RootStackParamList = {
   Splash: undefined;
-  Landing: { categories?: CategoryInfo[] };
+  Landing: { resources: BackendResource };
   Home: undefined;
-  Category: { categoryInfo: CategoryInfo };
+  Category: { categoryInfo: CategoryInfo, stories: Story[] };
   Story: { story: Story };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export const App = () => {
+const App = () => {
 
     /*
     const { isLoaded, isClosed, load, show } = useAppOpenAd(TestIds.APP_OPEN, {
@@ -74,3 +75,5 @@ export const App = () => {
         </NavigationContainer>
   );
 }
+
+export default withIAPContext(App);

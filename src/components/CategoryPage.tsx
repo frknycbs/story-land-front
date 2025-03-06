@@ -4,18 +4,25 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
-import { Story, CategoryInfo } from '../types';
+import { Story, CategoryInfo, GooglePlayTransactionReceipt } from '../types';
 import { getStyles } from './CategoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
 import { useScreenDimensions } from '../hooks/useDimensions';
 import { getGeneralStyles } from './generalStyles';
+import { PurchaseModal } from './PurchaseModal';
+import { ProductPurchase, Purchase, PurchaseResult, requestPurchase, useIAP } from 'react-native-iap';
+import { verifyPurchase } from '../api/verifyPurchase';
 
 type CategoryPageProps = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
 export const CategoryPage = ({ route }: CategoryPageProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const { categoryInfo }: { categoryInfo: CategoryInfo } = route.params;
-    const [stories, setStories] = useState<Story[]>([]);
+    const categoryInfo: CategoryInfo  = route.params.categoryInfo;
+    const [stories, setStories] = useState<Story[]>(route.params.stories);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<Story | null>(null);
+    const [purchaseStatus, setPurchaseStatus] = useState<"init" | "pending" | "failed" | "success">("init") // Store purchase status
+
     const { screenWidth, screenHeight } = useScreenDimensions();
 
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 5 : 3), [screenWidth, screenHeight]);
@@ -25,7 +32,90 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
 
     const generalStyles = getGeneralStyles(screenWidth, screenHeight);
 
+    const {
+        connected,
+        products,
+        purchaseHistory,
+        availablePurchases,
+        currentPurchase,
+        currentPurchaseError,
+        initConnectionError,
+        finishTransaction,
+        getProducts,
+        getAvailablePurchases,
+        getPurchaseHistory,
+    } = useIAP();
 
+    const handlePurchase = async (productId: string): Promise<void> => {
+        try {
+            await requestPurchase({ skus: [productId] }); // No need to return anything
+            setPurchaseStatus("pending");
+            console.log("Purchase request sent successfully");
+        } catch (error) {
+            console.error('Purchase request failed:', error);
+            setPurchaseStatus("failed");
+        }
+    };
+
+    useEffect(() => {
+        if (!currentPurchase) {
+            console.log('No new purchase detected');
+            return; // No new purchase
+        }
+    
+        const processPurchase = async () => {
+            try {
+                console.log('New Purchase Detected:', JSON.stringify(currentPurchase));
+    
+                if (!currentPurchase.transactionReceipt) {
+                    console.error('No receipt found!');
+                    return;
+                }
+
+                const transactionReceipt: GooglePlayTransactionReceipt = JSON.parse(currentPurchase.transactionReceipt)
+                if(transactionReceipt.purchaseState === 1) {
+                    throw("Purchase cancelled, closing modal...")
+                }
+
+                if(transactionReceipt.purchaseState === 2) {
+                    console.log("Purchase pending, waiting...")
+                    return
+                }
+    
+                // Purchase state must be 0 -- COMPLETED, Send receipt to backend for verification
+                const unlockedStories: Story[] | null = await verifyPurchase(currentPurchase);
+                console.log("Backend purchase verification result:", JSON.stringify(unlockedStories));
+                if (!unlockedStories) {
+                    throw('Purchase verification failed');
+                }
+    
+                // ✅ Only finish transaction after successful verification
+                await finishTransaction({ purchase: currentPurchase, isConsumable: false });
+                console.log('Transaction Finished Successfully');
+
+                setStories(unlockedStories)
+                setPurchaseStatus("success");
+            } catch (error) {
+                console.error('Error processing purchase:', error);
+                setPurchaseStatus("failed");
+                return
+            }
+        };
+    
+        processPurchase();
+    }, [currentPurchase]);
+
+    useEffect(() => {
+        // ... listen to currentPurchaseError, to check if any error happened
+        if(currentPurchaseError) {
+            console.error("Purchase error occurred:", currentPurchaseError);
+            setPurchaseStatus("failed");
+        }
+      
+    }, [currentPurchaseError]);
+
+    
+    /*
     useEffect(() => {
         const loadStories = async () => {
             const data: Story[] | null = await getStoriesByCategory(categoryInfo.categoryName);
@@ -39,6 +129,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
         };
         loadStories();
     }, []);
+    */
 
 
 
@@ -87,9 +178,16 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                         <View style={styles.itemContainer}>
                             <TouchableOpacity
                                 style={styles.thumbnail}
-                                onPress={() => navigation.navigate('Story', { story: item })}
+                                onPress={() => {
+                                    if (item.name === 'cat') {
+                                        setSelectedItem(item);
+                                        setModalVisible(true);
+                                    } else {
+                                        navigation.navigate('Story', { story: item });
+                                    }
+                                }}
                             >
-                                <Image source={{ uri: item.thumbnailURL }} style={styles.thumbnailImage} resizeMode="cover" />
+                                <Image source={{ uri: item.thumbnailURL }} style={styles.thumbnailImage} />
                             </TouchableOpacity>
                             <Text style={styles.characterName}>Budy</Text>
                         </View>
@@ -98,6 +196,19 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                     contentContainerStyle={styles.listContainer}
                     columnWrapperStyle={styles.columnWrapper}
                 />
+
+                {/* Purchase Modal */}
+                {selectedItem && (
+                    <PurchaseModal
+                        visible={isModalVisible}
+                        onClose={() => {setModalVisible(false); setPurchaseStatus('init');}}
+                        item={selectedItem}
+                        productId={"test_product"}
+                        handlePurchase={handlePurchase}
+                        purchaseStatus={purchaseStatus}
+                        setPurchaseStatus={setPurchaseStatus}
+                    />
+                )}
             </View>
         </>
     );

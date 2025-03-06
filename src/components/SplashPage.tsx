@@ -6,71 +6,120 @@ import { RootStackParamList } from '../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getCategoryInfo } from '../api/getCategoryInfo';
 import getCachedResource from '../utils/getCachedResource';
-import { CategoryInfo } from '../types';
+import { BackendResource, CategoryInfo, Story } from '../types';
 import { useFonts } from 'expo-font';
+import { useIAP } from 'react-native-iap';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { getAllResources } from '../api/getAllResources';
 
+/* 
+Example Product:
+[
+    {
+        "oneTimePurchaseOfferDetails":  {
+            "priceAmountMicros":"10000000",
+            "formattedPrice":"TRY 10.00",
+            "priceCurrencyCode":"TRY"
+        },
+        "name": "Test Product", 
+        "productType":  "inapp",
+        "description":"This is a test product",
+        "title":"Test Product (com.j_terry.StoryLandFront (unreviewed))",
+        "productId":"test_product",
+        "price":"TRY 10.00",
+        "localizedPrice":"TRY 10.00",
+        "currency":"TRY"
+    }
+]
+
+*/
 export const SplashPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [resourcesLoaded, setResourcesLoaded] = useState(false);
-    const [minTimeElapsed, setMinTimeElapsed] = useState(false);
-    const [loadedCategories, setLoadedCategories] = useState<CategoryInfo[]>([]);
+    const [storeResourcesLoaded, setStoreResourcesLoaded] = useState(false);
+    const [resources, setResources] = useState<BackendResource | null>(null);
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
     });
 
+    const {
+        connected,
+        products,
+        availablePurchases,
+        initConnectionError,
+        getProducts,
+        getAvailablePurchases,
+    } = useIAP();
+
+    useEffect(() => {
+        if (connected) {
+            const fetchProductsAndPurchases = async () => {
+                try {
+                    console.log("Calling getProducts");
+                    await getProducts({ skus: ["test_product"] });
+                    await getAvailablePurchases();
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                }
+            };
+
+            fetchProductsAndPurchases();
+        }
+    }, [connected, getProducts, getAvailablePurchases]); // Run only when `connected` is `true`
+
+    useEffect(() => {
+        if (products && products.length > 0) {
+            console.log("Test product fetched, marking IAP connected");
+            setStoreResourcesLoaded(true);
+        }
+    }, [products]);
+
+    useEffect(() => {
+        if (initConnectionError) {
+            console.log("Init connection error:", initConnectionError);
+        }
+    }, [initConnectionError]);
+
+
     // Load resources
     useEffect(() => {
         const loadResources = async () => {
-            try {
-                // Load categories and images
-                const data = await getCategoryInfo();
-                if (data) {
-                    // Preload images
-                    const processedData = [...data];
-                    for (const elem of processedData) {
-                        elem.bgImageURL = await getCachedResource(elem.bgImageURL);
+            if (storeResourcesLoaded) {
+                try {
+                    // Available purchases should be loaded by now
+                    const backendResource: BackendResource | null = await getAllResources(availablePurchases);
+                    if (backendResource) {
+                        console.log("Backend resources loaded")
+                        setResources(backendResource)
                     }
-                    setLoadedCategories(processedData);
+                } catch (error) {
+                    console.error('Error loading backend resources:', error);
                 }
-                // Mark resources as loaded
-                setResourcesLoaded(true);
-            } catch (error) {
-                console.error('Error loading resources:', error);
-                // Even if there's an error, we'll consider resources "loaded" to prevent getting stuck
-                setResourcesLoaded(true);
             }
+
         };
 
         loadResources();
     }, []);
 
-    // Ensure minimum display time of 2 seconds
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setMinTimeElapsed(true);
-        }, 2000); // 2 seconds minimum display time
-
-        return () => clearTimeout(timer);
-    }, []);
 
     // Navigate to Landing when both conditions are met
     useEffect(() => {
-        if (resourcesLoaded && minTimeElapsed && fontsLoaded) {
+        if (resources && storeResourcesLoaded && fontsLoaded) {
             navigation.reset({
                 index: 0,
-                routes: [{ 
+                routes: [{
                     name: 'Landing',
-                    params: { categories: loadedCategories }
+                    params: { resources }
                 }],
             });
         }
-    }, [resourcesLoaded, minTimeElapsed, navigation, loadedCategories]);
+    }, [navigation]);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar translucent backgroundColor="transparent" style="light" />
-            <ImageBackground 
-                source={require('../assets/images/spaceBG.jpeg')} 
+            <ImageBackground
+                source={require('../assets/images/spaceBG.jpeg')}
                 style={styles.container}
                 resizeMode="cover"
             >

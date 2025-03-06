@@ -8,6 +8,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  */
 const getCachedResource = async (resourceURL: string): Promise<string> => {
   try {
+
+    // Check if resourceURL is local, if so, return it as is
+    if(resourceURL.startsWith("file:///"))
+        return resourceURL
+    
     // Check if the resource is already cached
     const cachedLocalURL = await AsyncStorage.getItem(resourceURL);
     if (cachedLocalURL) {

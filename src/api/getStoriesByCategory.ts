@@ -8,6 +8,7 @@ export const getStoriesByCategory = async (category: string): Promise<Array<Stor
             throw new Error("Category is required");
         }
 
+        console.log(constants.BACKEND_API_URL)
         const response = await axios.get(constants.BACKEND_API_URL + `/story/getStoriesByCategory`, {
             params: { category }
         });
