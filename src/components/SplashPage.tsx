@@ -4,135 +4,69 @@ import { Image, StyleSheet, SafeAreaView, ImageBackground } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from '../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { getCategoryInfo } from '../api/getCategoryInfo';
-import getCachedResource from '../utils/getCachedResource';
+
 import { BackendResource, Category, CategoryInfo, Story } from '../types';
 import { useFonts } from 'expo-font';
-import { useIAP } from 'react-native-iap';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-import { getAllResources } from '../api/getAllResources';
-import { useResources } from '../contexts/StoryContext';
+import { Product, Purchase } from 'react-native-iap';
+import { useResources } from '../contexts/ResourceContext';
+import { getResources } from '../utils/getResources';
+import { useAvailablePurchases } from '../hooks/useAvailablePurchases';
+import { checkBackend } from '../api/checkBackend';
+import { useProducts } from '../hooks/useProducts';
 
-/* 
-Example Product:
-[
-    {
-        "oneTimePurchaseOfferDetails":  {
-            "priceAmountMicros":"10000000",
-            "formattedPrice":"TRY 10.00",
-            "priceCurrencyCode":"TRY"
-        },
-        "name": "Test Product", 
-        "productType":  "inapp",
-        "description":"This is a test product",
-        "title":"Test Product (com.j_terry.StoryLandFront (unreviewed))",
-        "productId":"test_product",
-        "price":"TRY 10.00",
-        "localizedPrice":"TRY 10.00",
-        "currency":"TRY"
-    }
-]
 
-*/
 export const SplashPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [productsLoaded, setProductsLoaded] = useState(false);
-    const [availablePurchasesLoaded, setAvailablePurchasesLoaded] = useState(false);
-    const { stories, setStories, categoryInfo, setCategoryInfo } = useResources();
+    const [areResourcesLoaded, setAreResourcesLoaded] = useState(false);
+    const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable } = useResources()
+    const { waitForAvailablePurchases } = useAvailablePurchases()
+    const { waitForProducts } = useProducts()
+    
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
     });
-    const isInitialRender = useRef(true);
-    const {
-        connected,
-        products,
-        availablePurchases,
-        purchaseHistory,
-        initConnectionError,
-        getProducts,
-        getAvailablePurchases,
-        getPurchaseHistory,
-    } = useIAP();
-
-    useEffect(() => {
-        if (connected) {
-            const fetchProductsAndPurchases = async () => {
-                try {
-                    const categoryInfo: CategoryInfo[] | null = await getCategoryInfo()
-                    if(!categoryInfo)
-                        throw("Category info cannot be fetched")
-
-                    const categories: Array<string> = categoryInfo.map(elem => elem.categoryName)
-
-                    await getAvailablePurchases();
-                    await getProducts({ skus: categories });
-                    
-                } catch (error) {
-                    console.error("Error fetching products:", error);
-                }
-            };
-
-            fetchProductsAndPurchases();
-        }
-    }, [connected, getProducts, getAvailablePurchases]); // Run only when `connected` is `true`
-
-    useEffect(() => {
-        if (products && products.length > 0) {
-            console.log("Products fetched, marking IAP connected -- products: ", products)
-            setProductsLoaded(true);
-        }
-
-        // else console.log("Initial render products")
-    }, [products]);
-
-    useEffect(() => {
-        if (isInitialRender.current) {
-            // Skip the first render
-            console.log("Initial render purchases")
-            isInitialRender.current = false;
-            return;
-        }
-
-        // This runs only on updates, not on mount
-        console.log("Available purchases fetched (if any): ", availablePurchases);
-        // console.log(availablePurchases);
-        setAvailablePurchasesLoaded(true);
-    }, [availablePurchases]);
-
-    useEffect(() => {
-        if (initConnectionError) {
-            console.log("Init connection error:", initConnectionError);
-        }
-    }, [initConnectionError]);
-
-
+  
     // Load resources
     useEffect(() => {
         const loadResources = async () => {
-            if (productsLoaded && availablePurchasesLoaded) {
-                try {
-                    // Available purchases should be loaded by now
-                    // console.log(availablePurchases)
-                    const backendResource: BackendResource | null = await getAllResources(availablePurchases);
-                    if (backendResource) {
-                        console.log("Backend resources loaded")
-                        setCategoryInfo(backendResource.categoryInfo)
-                        setStories(backendResource.stories)
-                    }
-                } catch (error) {
-                    console.error('Error loading backend resources:', error);
-                }
-            }
+            try {
+                
+                console.log("Checking backend connection...")
+                const backendHealth: boolean | null = await checkBackend()
+                setIsBackendOnline(backendHealth)
 
+                console.log("Backend connection: ", backendHealth)
+
+                const availablePurchases: Purchase[] = backendHealth ? await waitForAvailablePurchases() : []
+                const products: Product[] = backendHealth ? await waitForProducts() : []
+
+                console.log("Available purchases fetched inside Splash Page: ", availablePurchases)
+                console.log("Product list: ", products)
+
+                const resources: BackendResource | null = await getResources(backendHealth, availablePurchases);
+                if(!resources)
+                    throw("Couldn't fetch resources in Splash Page...")
+
+                if (resources) {
+                    setStories(resources.stories)
+                    setCategoryInfo(resources.categoryInfo)
+                    setAreResourcesLoaded(true)
+                }
+                    
+            } catch (error) {
+                console.error('Error loading resources:', error);
+            }
         };
 
         loadResources();
-    }, [productsLoaded, availablePurchasesLoaded]);
+    }, []);
 
 
     // Navigate to Landing when both conditions are met
     useEffect(() => {
-        if (stories.length > 0 && categoryInfo.length > 0 && fontsLoaded) {
+        console.log("areResourcesLoaded: ", areResourcesLoaded, ", fontsLoaded: ", fontsLoaded, ", googlePlayAvailable: ", googlePlayAvailable)
+        if (areResourcesLoaded && fontsLoaded) {
+            console.log("Backend resources and fonts loaded")
             navigation.reset({
                 index: 0,
                 routes: [{
@@ -140,7 +74,7 @@ export const SplashPage = () => {
                 }],
             });
         }
-    }, [stories, categoryInfo, navigation]);
+    }, [areResourcesLoaded, navigation, googlePlayAvailable]);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

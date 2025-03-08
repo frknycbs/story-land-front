@@ -36,27 +36,6 @@ export const getAllResources = async (availablePurchases: ProductPurchase[]): Pr
         if (!resources.stories || resources.stories.length < 1)
             throw ("Stories cannot be fetched from resources")
 
-        console.log("All resources fetched from backend, starting caching...")
-
-        // Now, we cache all resources concurrently
-        await Promise.all(resources.categoryInfo.map(async (singleCategoryInfo) => {
-            singleCategoryInfo.bgImageURL = await getCachedResource(singleCategoryInfo.bgImageURL);
-        }));
-
-        await Promise.all(resources.stories.map(async (story) => {
-            if (!story.free) {
-                story.disabledThumbnailURL = await getCachedResource(story.disabledThumbnailURL);
-            }
-
-            if (!story.disabled) {
-                [story.audioURL, story.imageURL, story.thumbnailURL] = await Promise.all([
-                    getCachedResource(story.audioURL),
-                    getCachedResource(story.imageURL),
-                    getCachedResource(story.thumbnailURL)
-                ]);
-            }
-        }));
-
         // console.log("Caching done: ", JSON.stringify(resources, null, 4))
 
         return resources;

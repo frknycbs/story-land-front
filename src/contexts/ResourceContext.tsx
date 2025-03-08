@@ -7,6 +7,10 @@ interface ResourcesContextType {
   setStories: (stories: Story[]) => void;
   categoryInfo: CategoryInfo[];
   setCategoryInfo: (categoryInfo: CategoryInfo[]) => void;
+  isBackendOnline: boolean | null;
+  setIsBackendOnline: (status: boolean | null) => void;
+  googlePlayAvailable: boolean;
+  setGooglePlayAvailable: (status: boolean) => void;
 }
 
 const ResourcesContext = createContext<ResourcesContextType | undefined>(undefined);
@@ -14,9 +18,12 @@ const ResourcesContext = createContext<ResourcesContextType | undefined>(undefin
 export const ResourcesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stories, setStories] = useState<Story[]>([]);
   const [categoryInfo, setCategoryInfo] = useState<CategoryInfo[]>([]);
+  const [isBackendOnline, setIsBackendOnline] = useState<boolean | null>(null);
+  const [googlePlayAvailable, setGooglePlayAvailable] = useState<boolean>(false);
 
   return (
-    <ResourcesContext.Provider value={{ stories, setStories, categoryInfo, setCategoryInfo}}>
+    <ResourcesContext.Provider
+        value={{ stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable}}>
       {children}
     </ResourcesContext.Provider>
   );

@@ -12,11 +12,11 @@ const getCachedResource = async (resourceURL: string): Promise<string> => {
     // Check if resourceURL is local, if so, return it as is
     if(resourceURL.startsWith("file:///"))
         return resourceURL
-    
+
     // Check if the resource is already cached
     const cachedLocalURL = await AsyncStorage.getItem(resourceURL);
     if (cachedLocalURL) {
-      console.log('Resource found in cache:', cachedLocalURL);
+      // console.log('Resource found in cache:', cachedLocalURL);
       return cachedLocalURL;
     }
 
@@ -25,13 +25,13 @@ const getCachedResource = async (resourceURL: string): Promise<string> => {
     const localResourceURL = `${FileSystem.cacheDirectory}${filename}`;
 
     // Download the file if it doesn't exist locally
-    console.log('Downloading resource...');
+    // console.log('Downloading resource...');
     const { uri } = await FileSystem.downloadAsync(resourceURL, localResourceURL);
 
     // Store the local file path in AsyncStorage
     await AsyncStorage.setItem(resourceURL, uri);
 
-    console.log('Resource downloaded and cached:', uri);
+    // console.log('Resource downloaded and cached:', uri);
     return uri;
   } catch (error) {
     console.error('Error caching resource:', error);

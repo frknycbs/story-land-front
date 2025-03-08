@@ -10,7 +10,7 @@ import getCachedResource from '../utils/getCachedResource';
 import { getStyles } from './LandingPage.styles';
 import { useScreenDimensions } from '../hooks/useDimensions';
 import { getGeneralStyles } from './generalStyles';
-import { useResources } from '../contexts/StoryContext';
+import { useResources } from '../contexts/ResourceContext';
 
 export const LandingPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

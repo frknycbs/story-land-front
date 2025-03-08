@@ -19,6 +19,10 @@ export type CategoryInfo = {
     _id: string
 }
 
+export interface BackendHealth {
+    status: "OK";
+    count: number;
+}
 
 export interface GooglePlayVerifyPurchaseRequestBody {
     purchaseToken: string;

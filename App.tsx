@@ -7,7 +7,7 @@ import { SplashPage } from './src/components/SplashPage';
 import { BackendResource, Category, CategoryInfo, Story } from './src/types';
 import { LandingPage } from './src/components/LandingPage';
 import { withIAPContext } from 'react-native-iap';
-import { ResourcesProvider } from './src/contexts/StoryContext';
+import { ResourcesProvider } from './src/contexts/ResourceContext';
 
 export type RootStackParamList = {
     Splash: undefined;

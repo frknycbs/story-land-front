@@ -102,6 +102,26 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 3, height: 2 },
         textShadowRadius: 2,
+        width: 200,
+
+        ...!isPortrait && {
+            top: '40%',
+            left: 180,
+        }
+    },
+
+    offlineText: {
+        position : 'absolute',
+        top: 260,
+        fontFamily: 'BubblegumSans',
+        fontSize: 18,
+        textAlign: 'center',
+        color: 'white',
+        marginBottom: 20,
+        textShadowColor: 'rgba(0, 0, 0, 1)',
+        textShadowOffset: { width: 3, height: 2 },
+        textShadowRadius: 2,
+        width: 220,
 
         ...!isPortrait && {
             width: 200,

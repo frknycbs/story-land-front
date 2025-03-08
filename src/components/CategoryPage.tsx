@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
-import { Story, CategoryInfo, GooglePlayTransactionReceipt } from '../types';
+import { Story, CategoryInfo, GooglePlayTransactionReceipt, BackendResource } from '../types';
 import { getStyles } from './CategoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
 import { useScreenDimensions } from '../hooks/useDimensions';
@@ -12,14 +12,15 @@ import { getGeneralStyles } from './generalStyles';
 import { PurchaseModal } from './PurchaseModal';
 import { ProductPurchase, Purchase, PurchaseResult, requestPurchase, useIAP } from 'react-native-iap';
 import { verifyPurchase } from '../api/verifyPurchase';
-import { useResources } from '../contexts/StoryContext';
+import { useResources } from '../contexts/ResourceContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type CategoryPageProps = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
 export const CategoryPage = ({ route }: CategoryPageProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [categoryInfo, setCategoryInfo] = useState<CategoryInfo>(route.params.categoryInfo)
-    const { stories, setStories } = useResources();
+    const [singleCategoryInfo, setSingleCategoryInfo] = useState<CategoryInfo>(route.params.categoryInfo)
+    const { stories, setStories, categoryInfo } = useResources();
 
     const [isPaymentProcessing, setIsPaymentProcessing] = useState<true | false>(false)
     const [isModalVisible, setModalVisible] = useState(false);
@@ -105,8 +106,23 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 await finishTransaction({ purchase: currentPurchase, isConsumable: false });
                 console.log('Transaction Finished Successfully');
 
-                const newStories: Story[] = stories.filter(story => story.category !== categoryInfo.categoryName).concat(unlockedStories)
+                const newStories: Story[] = stories.filter(story => story.category !== singleCategoryInfo.categoryName).concat(unlockedStories)
                 setStories(newStories)
+
+                let cachedResourcesStr: string | null = await AsyncStorage.getItem("resources")
+                if(!cachedResourcesStr) {
+                    cachedResourcesStr = JSON.stringify({ stories: newStories, categoryInfo })
+                    await AsyncStorage.setItem("resources", cachedResourcesStr);
+                }
+
+                else {
+                    const cachedResources: BackendResource = JSON.parse(cachedResourcesStr)
+                    console.log("Old cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
+                    cachedResources.stories = newStories
+                    console.log("New cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
+                    await AsyncStorage.setItem("resources", JSON.stringify(cachedResources));  
+                }
+                
                 setPurchaseStatus("success");
             } catch (error) {
                 console.error('Error processing purchase:', error);
@@ -122,6 +138,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
         // ... listen to currentPurchaseError, to check if any error happened
         if (currentPurchaseError) {
             console.error("Purchase error occurred, closing:", currentPurchaseError);
+            // console.log(singleCategoryInfo)
             setPurchaseStatus("failed");
         }
 
@@ -174,7 +191,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 showsHorizontalScrollIndicator={false} contentContainerStyle={{}}>
 
                 <ImageBackground
-                    source={{ uri: categoryInfo.bgImageURL }}
+                    source={{ uri: singleCategoryInfo.bgImageURL }}
                     style={styles.imageBackground}
                     resizeMode="cover">
                 </ImageBackground>
@@ -183,7 +200,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
 
             <View style={styles.grid} pointerEvents="box-none">
                 <FlatList
-                    data={stories.filter(story => story.category === categoryInfo.categoryName)}
+                    data={stories.filter(story => story.category === singleCategoryInfo.categoryName)}
                     numColumns={numColumns}
                     key={numColumns} // Change key when numColumns changes
                     keyExtractor={(item) => item._id}
@@ -218,7 +235,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                         visible={isModalVisible}
                         onClose={() => { setModalVisible(false); setPurchaseStatus('init'); }}
                         name={name}
-                        productId={categoryInfo.categoryName}
+                        productId={singleCategoryInfo.categoryName}
                         handlePurchase={handlePurchase}
                         purchaseStatus={purchaseStatus}
                         setPurchaseStatus={setPurchaseStatus}

@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getStyles } from './PurchaseModal.styles';
 import { Story } from '../types';
 import { StatusBar } from 'expo-status-bar';
-import { useResources } from '../contexts/StoryContext';
+import { useResources } from '../contexts/ResourceContext';
 
 // The Purchase Modal Component
 interface PurchaseModalProps {
@@ -23,7 +23,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchas
 
     const isPortrait = screenHeight > screenWidth;
     const timeoutRef = useRef<NodeJS.Timeout | number | null>(null);
-    const { stories } = useResources();
+    const { stories, googlePlayAvailable, isBackendOnline } = useResources();
 
     const story: Story = stories.find(story => story.name === name)!
 
@@ -121,19 +121,27 @@ export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchas
 
                         {purchaseStatus === 'init' && (
                             <>
-                                <Text style={styles.instructionText}>If you want, you can unlock all my friends!!! 🎉✨</Text>
+                                {isBackendOnline && googlePlayAvailable && 
+                                    <Text style={styles.instructionText}>If you want, you can unlock all my friends!!! 🎉✨</Text>}
+                                
+                                {!googlePlayAvailable && isBackendOnline &&
+                                    <Text style={styles.offlineText}>It seems you don't have a Google Play account available, 
+                                    so you can't unlock us... 😢😢</Text>}
+                                
+                                {!isBackendOnline &&
+                                    <Text style={styles.offlineText}>I think you're offline, so you can't unlock us 😢😢</Text>}
 
                                 {/* "All My Friends" Button */}
-                                <Animated.View
+                                {isBackendOnline && googlePlayAvailable && <Animated.View
                                     style={[
                                         styles.purchaseButtonCombo,
                                         { backgroundColor: animatedBackgroundColor }, // Apply animated background color
                                     ]}
                                 >
-                                    <TouchableOpacity onPress={handleButtonPress}>
+                                   <TouchableOpacity onPress={handleButtonPress}>
                                         <Text style={styles.buttonText}>Unlock All 🔓</Text>
                                     </TouchableOpacity>
-                                </Animated.View>
+                                </Animated.View>}
                             </>
                         )}
 
