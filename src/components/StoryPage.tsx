@@ -24,7 +24,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [isSliderVisible, setIsSliderVisible] = useState(true);
     const [isSpeakerVisible, setIsSpeakerVisible] = useState(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const isScrubbing = useRef(false); // Track if user is scrubbing the slider
+    
     const { screenWidth, screenHeight } = useScreenDimensions();
 
     const [fadeAnim] = useState(new Animated.Value(1));
@@ -34,8 +34,9 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const styles = getStyles(screenWidth, screenHeight);
 
     const lastUpdateTime = useRef(0); // Already correct, just confirming
-    const sliderValueRef = useRef(position)
-    
+    const [sliderValue, setSliderValue] = useState(0)
+    const [isScrubbing, setIsScrubbing] = useState<true | false>(false); // Track if user is scrubbing the slider
+    const isScrubbingRef = useRef(false)
   
     
 
@@ -43,7 +44,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         if (isPlayPauseVisible) {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
-                console.log("Timeout cleared")
+                // console.log("Timeout cleared")
                 timeoutRef.current = null; // Reset ref
             }
 
@@ -72,7 +73,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     }
 
     const startFadeoutTimer = () => {
-        timeoutRef.current = setTimeout(() => fadeout(), 3000);
+        timeoutRef.current = setTimeout(() => fadeout(), 3000000);
     };
 
     const cancelFadeoutTimer = () => {
@@ -96,7 +97,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
 
     useEffect(() => {
         if (isPlaying) {
-            console.log("isPlaying", isPlaying);
+            // console.log("isPlaying", isPlaying);
             setIsSpeakerVisible(true);
             Animated.timing(fadeAnimSpeaker, {
                 toValue: 1,   // End opacity value (fully invisible)
@@ -122,7 +123,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
 
     useEffect(() => {
         if (isPlayPauseVisible) {
-            console.log("isPlayPauseVisible", isPlayPauseVisible);
+            // console.log("isPlayPauseVisible", isPlayPauseVisible);
             // Trigger fade-in animation when button becomes visible
             Animated.timing(fadeAnim, {
                 toValue: 1,   // End opacity value (fully visible)
@@ -143,6 +144,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         loadStoryResources();
     }, []);
 
+    
     const handlePlayStoryAudio = async () => {
         if (!sound) {
             try {
@@ -166,11 +168,12 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                         return;
                     }
 
-                    if (isScrubbing.current) {
+                    if (isScrubbingRef.current) {
                         // console.log('Skipping update due to scrubbing');
                         return;
                     }
 
+                    // console.log("Is scrubbing: ", isScrubbing, "inside onPlayback")
                     const soundSeconds = Math.floor(status.positionMillis / 1000);
                     const lastPosition = lastUpdateTime.current;
                     // console.log("Sound is at: ", soundSeconds, ", lastPosition is at: ", lastPosition)
@@ -178,7 +181,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     if (soundSeconds > lastPosition) {
                         setPosition(soundSeconds);
                         lastUpdateTime.current = soundSeconds;
-                        console.log('Position updated to:', soundSeconds);
+                        // console.log('Position updated to:', soundSeconds);
                     }
 
                     if (status.didJustFinish) {
@@ -209,7 +212,8 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             setPosition(value);
             lastUpdateTime.current = Math.floor(value)
             await sound.setPositionAsync(value * 1000); // Convert to milliseconds
-            isScrubbing.current = false; // Done scrubbing
+            setIsScrubbing(false); // Done scrubbing
+            isScrubbingRef.current = false
             startFadeoutTimer()
         }
       };
@@ -219,10 +223,6 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
-
-    useEffect(() => {
-        console.log('Slider value should be:', position); // Log every position change
-    }, [position]);
 
     return (
         <View style={styles.container}>
@@ -256,22 +256,22 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             </ScrollView>
 
             {isSliderVisible && <Animated.View style={[styles.progressContainer, { opacity: fadeAnim }]}>
-                <Text style={styles.timeText}>{formatTime(position)} / {formatTime(duration)}</Text>
+                <Text style={styles.timeText}>{formatTime(isScrubbing ? sliderValue : position)} / {formatTime(duration)}</Text>
                 <Slider
                     style={styles.slider}
                     minimumValue={0}
                     maximumValue={duration}
                     value={position}
                     onValueChange={(value) => {
-                        if(isScrubbing.current) {
-                            sliderValueRef.current = value
+                        if(isScrubbing) {
+                            setSliderValue(value)
                             cancelFadeoutTimer()
                             // setPosition(value)
                         }
-                        // console.log("User dragging: ", isScrubbing.current, "On change, position: ", position, "value: ", value); 
+                        console.log("User dragging: ", isScrubbing, "On change, position: ", position, "value: ", sliderValue); 
                     }}
                     onSlidingComplete={handleSliderComplete}
-                    onSlidingStart={() => {isScrubbing.current = true}}
+                    onSlidingStart={() => {setIsScrubbing(true); isScrubbingRef.current = true}}
                     thumbTintColor="#fff"
                     minimumTrackTintColor="#fff"
                     maximumTrackTintColor="#000"
