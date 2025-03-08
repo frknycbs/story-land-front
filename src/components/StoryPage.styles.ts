@@ -75,7 +75,7 @@ export const getStyles = (screenWidth: number, screenHeight: number) => StyleShe
     },
     progressContainer: {
         width: screenWidth,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         alignItems: 'center',
         position: 'absolute',
         bottom: 0,

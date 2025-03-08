@@ -61,6 +61,12 @@ export const getStyles = (screenWidth: number, screenHeight: number, itemWidth: 
         flex: 1,
         resizeMode: 'cover',
     },
+
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)'
+    },
+
     backButton: {
         position: 'absolute',
         top: 20, // Adjust as needed

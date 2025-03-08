@@ -5,16 +5,18 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getCategoryInfo } from '../api/getCategoryInfo';
-import { BackendResource, CategoryInfo } from '../types';
+import { BackendResource, CategoryInfo, Story } from '../types';
 import getCachedResource from '../utils/getCachedResource';
 import { getStyles } from './LandingPage.styles';
 import { useScreenDimensions } from '../hooks/useDimensions';
 import { getGeneralStyles } from './generalStyles';
+import { useResources } from '../contexts/StoryContext';
 
 export const LandingPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const route = useRoute<RouteProp<RootStackParamList, 'Landing'>>();
-    const resources: BackendResource = route.params.resources
+    const { stories, categoryInfo } = useResources();
+
     const { screenWidth, screenHeight } = useScreenDimensions();
 
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 3 : 2), [screenWidth, screenHeight]);
@@ -23,21 +25,7 @@ export const LandingPage = () => {
     const itemWidth = screenWidth / numColumns;
     const generalStyles = getGeneralStyles(screenWidth, screenHeight);
 
-    const styles = getStyles(screenWidth, screenHeight, itemWidth);
-
-    /*
-    useEffect(() => {
-        // Check if categories were passed from SplashPage
-        if (resources.categoryInfo && resources.categoryInfo.length > 0) {
-            console.log('Using resources passed from SplashPage');
-            const data = resources.categoryInfo;
-            
-            setCategories([...data.map(item => ({ ...item, _id: Math.random().toString() })),
-            ...data.map(item => ({ ...item, _id: Math.random().toString() })),
-            ...data.map(item => ({ ...item, _id: Math.random().toString() })),]);
-        }
-    }, []);
-    */
+    const styles = getStyles(screenWidth, screenHeight, itemWidth);    
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -53,13 +41,14 @@ export const LandingPage = () => {
                 {/* Fixed Grid */}
                 <View style={styles.gridWrapper}>
                     <FlatList
-                        data={resources.categoryInfo}
+                        data={categoryInfo}
+                        key={numColumns}
                         numColumns={numColumns}
                         keyExtractor={(item: CategoryInfo) => item.categoryName}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={styles.thumbnail}
-                                onPress={() => navigation.navigate('Category', { categoryInfo: item, stories: resources.stories.filter(story => story.category === item.categoryName) })}
+                                onPress={() => navigation.navigate('Category', { categoryInfo: item })}
                             >
                                 <ImageBackground
                                     source={{ uri: item.bgImageURL }}

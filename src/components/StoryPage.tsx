@@ -33,8 +33,14 @@ export const StoryPage = ({ route }: StoryPageProps) => {
 
     const styles = getStyles(screenWidth, screenHeight);
 
+    const lastUpdateTime = useRef(0); // Already correct, just confirming
+    const sliderValueRef = useRef(position)
+    
+  
+    
+
     const handleScreenPress = () => {
-        if(isPlayPauseVisible) {
+        if (isPlayPauseVisible) {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
                 console.log("Timeout cleared")
@@ -48,7 +54,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             setIsPlayPauseVisible(true);
             setIsSliderVisible(true);
 
-            if(isPlaying)
+            if (isPlaying)
                 startFadeoutTimer();
         }
     }
@@ -68,11 +74,11 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const startFadeoutTimer = () => {
         timeoutRef.current = setTimeout(() => fadeout(), 3000);
     };
-    
+
     const cancelFadeoutTimer = () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
-            console.log("Timeout cleared")
+            // console.log("Timeout cleared")
             timeoutRef.current = null; // Reset ref
         }
     };
@@ -86,7 +92,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         };
     }, [sound]);
 
-   
+
 
     useEffect(() => {
         if (isPlaying) {
@@ -142,7 +148,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             try {
                 const { sound: newSound, status } = await Audio.Sound.createAsync(
                     { uri: cachedAudioURL },
-                    { shouldPlay: true, progressUpdateIntervalMillis: 500 }, // Update every 500ms
+                    { shouldPlay: true, progressUpdateIntervalMillis: 100 },
                 );
                 setSound(newSound);
                 setIsPlaying(true);
@@ -152,19 +158,36 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                 }
 
                 setDuration(status.durationMillis! / 1000); // Duration in seconds
+                console.log('Audio loaded, duration:', status.durationMillis! / 1000);
 
                 newSound.setOnPlaybackStatusUpdate((status) => {
-                    if (!status.isLoaded) return;
+                    if (!status.isLoaded) {
+                        console.log('Playback status not loaded');
+                        return;
+                    }
+
+                    if (isScrubbing.current) {
+                        console.log('Skipping update due to scrubbing');
+                        return;
+                    }
+
+                    const soundSeconds = Math.floor(status.positionMillis / 1000);
+                    const lastPosition = lastUpdateTime.current;
+                    // console.log("Sound is at: ", soundSeconds, ", lastPosition is at: ", lastPosition)
+
+                    if (soundSeconds > lastPosition) {
+                        setPosition(soundSeconds);
+                        lastUpdateTime.current = soundSeconds;
+                        console.log('Position updated to:', soundSeconds);
+                    }
+
                     if (status.didJustFinish) {
+                        console.log('Audio finished playing');
                         setIsPlaying(false);
                         setPosition(0);
-
-
-                        // Replay the audio from the beginning
                         newSound.setPositionAsync(0);
                         newSound.pauseAsync();
-                    } else if (!isScrubbing.current) { // Only update position if not scrubbing
-                        setPosition(status.positionMillis / 1000);
+                        lastUpdateTime.current = 0
                     }
                 });
             } catch (error) {
@@ -180,20 +203,25 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         }
     };
 
-    const handleSliderChange = async (value: number) => {
+    const handleSliderComplete = async (value: number) => {
         if (sound) {
-            isScrubbing.current = true; // User is scrubbing
+            // console.log("Inside handle slider complete, is scrubbing: ", isScrubbing.current, "changing it to false")
             setPosition(value);
+            lastUpdateTime.current = Math.floor(value)
             await sound.setPositionAsync(value * 1000); // Convert to milliseconds
             isScrubbing.current = false; // Done scrubbing
         }
-    };
+      };
 
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
+
+    useEffect(() => {
+        console.log('Slider value should be:', position); // Log every position change
+    }, [position]);
 
     return (
         <View style={styles.container}>
@@ -202,7 +230,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             </TouchableOpacity>
 
             {isSpeakerVisible && <Animated.View style={[styles.speakerContainer, { opacity: fadeAnimSpeaker }]}>
-                <Image source={require('../assets/images/speaker.png')} style={styles.speakerImage} />    
+                <Image source={require('../assets/images/speaker.png')} style={styles.speakerImage} />
             </Animated.View>}
 
             {cachedAudioURL !== "" && (
@@ -210,7 +238,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     {isPlayPauseVisible &&
                         <Animated.View style={[isPlaying ? styles.pauseButton : styles.playButton, { opacity: fadeAnim }]}>
                             <TouchableOpacity onPress={handlePlayStoryAudio}>
-                                <Image source={isPlaying ? require('../assets/images/pause.png') : require('../assets/images/play.png')} 
+                                <Image source={isPlaying ? require('../assets/images/pause.png') : require('../assets/images/play.png')}
                                     style={isPlaying ? styles.pauseImage : styles.playImage} />
                             </TouchableOpacity>
                         </Animated.View>}
@@ -233,8 +261,15 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     minimumValue={0}
                     maximumValue={duration}
                     value={position}
-                    onValueChange={(value) => setPosition(value)} // Update position locally
-                    onSlidingComplete={handleSliderChange} // Only seek when user releases
+                    onValueChange={(value) => {
+                        if(isScrubbing.current) {
+                            sliderValueRef.current = value
+                            // setPosition(value)
+                        }
+                        console.log("User dragging: ", isScrubbing.current, "On change, position: ", position, "value: ", value); 
+                    }}
+                    onSlidingComplete={handleSliderComplete}
+                    onSlidingStart={() => {isScrubbing.current = true}}
                     thumbTintColor="#fff"
                     minimumTrackTintColor="#fff"
                     maximumTrackTintColor="#000"

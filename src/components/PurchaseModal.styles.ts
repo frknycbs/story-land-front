@@ -5,19 +5,27 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // This will cover the entire screen
+        backgroundColor: 'rgba(0, 0, 0, 0.8)', // This will cover the entire screen
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
     },
-    modalContainer: {
+    imageContainer: {
         width: isPortrait ? 300 : 400,
         height: isPortrait ? 420 : 280,
-        backgroundColor: 'rgb(255, 137, 40)',
-        padding: 20,
-        borderRadius: 10,
+        borderRadius: 30,
+        borderColor: 'black',
+        borderWidth: 4,
+        overflow: 'hidden'
+    },
+
+
+    imageBackground: {
+        width: '100%',
+        height: '100%',
+        resizeMode: "cover",
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -62,6 +70,27 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         // Position is kept on the left with 20px margin
         // In landscape mode, only left margin is needed
     },
+    overlay: {
+        position: 'absolute',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        marginBottom: 15,
+        borderRadius: 100,
+        borderColor: '#000',
+        borderWidth: 3,
+        width: 150,
+        height: 150,
+        top: 70,
+
+        ...!isPortrait && {
+            top: '35%',
+            left: 20,
+        }
+        // Landscape Mode (No need for centering, just place the image)
+        // Position is kept on the left with 20px margin
+        // In landscape mode, only left margin is needed
+    },
+
     instructionText: {
         position : 'absolute',
         top: 230,
@@ -75,23 +104,26 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         textShadowRadius: 2,
 
         ...!isPortrait && {
-            top: '30%',
-            left: 200,
+            width: 200,
+            top: '40%',
+            left: 180,
         }
     },
     
     purchaseButtonCombo: {
         position: 'absolute',
-        top: 350,
-        backgroundColor: 'rgb(96, 58, 20)',
+        top: 300,
+        backgroundColor: 'rgb(0, 119, 0)',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderColor: 'black',
+        borderWidth: 1,
+        borderRadius: 10,
         marginBottom: 5,
 
         ...!isPortrait && {
-            top: '76%',
-            left: 216,
+            top: '65%',
+            left: 210,
         }
     },
     buttonText: {
@@ -101,9 +133,10 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
     },
     
     pendingContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
+        position: 'absolute',
+        top: isPortrait ? 180 : 100,
+        left: isPortrait ? 0 : 150,
+        right: 0,
     },
 
     finalText: {
@@ -114,10 +147,46 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 2,
         color: 'white',
-        marginTop: 120,
+        ...isPortrait && {
+            width: 200,
+            marginTop: 180,
+            // marginLeft: 140,
+        },
+
         ...!isPortrait && {
-            marginLeft: 140,
+            width: 200,
+            marginTop: 10,
+            marginLeft: 160,
         }
+
+    },
+
+    pendingText: {
+        fontFamily: 'BubblegumSans',
+        // borderColor: 'black',
+        // borderWidth: 2,
+        fontSize: 20,
+        textAlign: 'center',
+        textShadowColor: 'rgba(0, 0, 0, 1)',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 2,
+        color: 'white',
+        marginTop: 240,
+        ...!isPortrait && {
+            width: 200,
+            marginTop: 10,
+            marginLeft: 160,
+        }
+    },
+
+
+
+    closeImage: {
+        marginRight: 5,
+        marginTop: 5,
+        width: 20,
+        height: 20,
+
     }
 });
 

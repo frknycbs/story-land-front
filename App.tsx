@@ -4,16 +4,16 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import { CategoryPage } from './src/components/CategoryPage';
 import { StoryPage } from './src/components/StoryPage';
 import { SplashPage } from './src/components/SplashPage';
-import { BackendResource, CategoryInfo, Story } from './src/types';
+import { BackendResource, Category, CategoryInfo, Story } from './src/types';
 import { LandingPage } from './src/components/LandingPage';
-import {withIAPContext} from 'react-native-iap';
+import { withIAPContext } from 'react-native-iap';
+import { ResourcesProvider } from './src/contexts/StoryContext';
 
 export type RootStackParamList = {
-  Splash: undefined;
-  Landing: { resources: BackendResource };
-  Home: undefined;
-  Category: { categoryInfo: CategoryInfo, stories: Story[] };
-  Story: { story: Story };
+    Splash: undefined;
+    Landing: undefined;
+    Category: { categoryInfo: CategoryInfo };
+    Story: { story: Story}
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,31 +49,34 @@ const App = () => {
 
           */
     return (
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                
-                <Stack.Screen 
-                    name="Splash" 
-                    component={SplashPage} 
-                    options={{ 
-                        gestureEnabled: false,
-                        headerBackVisible: false
-                    }}
-                />
-                <Stack.Screen 
-                    name="Landing" 
-                    component={LandingPage}
-                    options={{ 
-                        gestureEnabled: true,
-                        headerBackVisible: false
-                    }}
-                />
-                
-                <Stack.Screen name="Category" component={CategoryPage} />
-                <Stack.Screen name="Story" component={StoryPage} />
-            </Stack.Navigator>
-        </NavigationContainer>
-  );
+        <ResourcesProvider>
+            <NavigationContainer>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+
+                    <Stack.Screen
+                        name="Splash"
+                        component={SplashPage}
+                        options={{
+                            gestureEnabled: false,
+                            headerBackVisible: false
+                        }}
+                    />
+                    <Stack.Screen
+                        name="Landing"
+                        component={LandingPage}
+                        options={{
+                            gestureEnabled: true,
+                            headerBackVisible: false
+                        }}
+                    />
+
+                    <Stack.Screen name="Category" component={CategoryPage} />
+                    <Stack.Screen name="Story" component={StoryPage} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </ResourcesProvider>
+
+    );
 }
 
 export default withIAPContext(App);

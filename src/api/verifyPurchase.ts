@@ -18,22 +18,26 @@ export const verifyPurchase = async (purchase: ProductPurchase): Promise<Story[]
 
         const stories: Story[] = response.data
         console.log("New purchased stories being cached: ", stories[0].category)
-        for(const story of stories) {
-            if(!story.free) 
-                story.disabledThumbnailURL = await getCachedResource(story.disabledThumbnailURL)
-            
-            if(!story.disabled) {
-                story.audioURL = await getCachedResource(story.audioURL)
-                story.imageURL = await getCachedResource(story.imageURL)
-                story.thumbnailURL = await getCachedResource(story.thumbnailURL)
-            }
-        }
-        
-        console.log("Purchase verification result:" , response.data);
 
-        return response.data;
+        await Promise.all(stories.map(async (story) => {
+            if (!story.free) {
+                story.disabledThumbnailURL = await getCachedResource(story.disabledThumbnailURL);
+            }
+
+            if (!story.disabled) {
+                [story.audioURL, story.imageURL, story.thumbnailURL] = await Promise.all([
+                    getCachedResource(story.audioURL),
+                    getCachedResource(story.imageURL),
+                    getCachedResource(story.thumbnailURL)
+                ]);
+            }
+        }));
+        
+        // console.log("Purchase verification result:" , response.data);
+
+        return stories;
     } catch (error: any) {
-        console.error("Error fetching category info:", error.status ? error.response.data : error);
+        console.error("Error fetching unlocked stories:", error.status ? error.response.data : error);
         return null;
     }
 };

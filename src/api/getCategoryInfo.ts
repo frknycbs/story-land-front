@@ -5,7 +5,7 @@ import { Category, CategoryInfo, Story } from '../types';
 export const getCategoryInfo = async (): Promise<Array<CategoryInfo> | null> => {
     try {
         
-        const response = await axios.get(constants.BACKEND_API_URL + `/category/getCategoryInfo`);
+        const response = await axios.get(constants.BACKEND_API_URL + `/category/getCategoryInfo`, {timeout: 5000});
         if(!response.data)
             throw("No response data found")
         
