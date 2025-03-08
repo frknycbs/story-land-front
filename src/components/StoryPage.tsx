@@ -167,7 +167,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     }
 
                     if (isScrubbing.current) {
-                        console.log('Skipping update due to scrubbing');
+                        // console.log('Skipping update due to scrubbing');
                         return;
                     }
 
@@ -210,6 +210,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             lastUpdateTime.current = Math.floor(value)
             await sound.setPositionAsync(value * 1000); // Convert to milliseconds
             isScrubbing.current = false; // Done scrubbing
+            startFadeoutTimer()
         }
       };
 
@@ -264,9 +265,10 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     onValueChange={(value) => {
                         if(isScrubbing.current) {
                             sliderValueRef.current = value
+                            cancelFadeoutTimer()
                             // setPosition(value)
                         }
-                        console.log("User dragging: ", isScrubbing.current, "On change, position: ", position, "value: ", value); 
+                        // console.log("User dragging: ", isScrubbing.current, "On change, position: ", position, "value: ", value); 
                     }}
                     onSlidingComplete={handleSliderComplete}
                     onSlidingStart={() => {isScrubbing.current = true}}
