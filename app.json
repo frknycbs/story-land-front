@@ -6,6 +6,7 @@
     "orientation": "default",
     "icon": "./src/assets/images/storyland_logo.png",
     "userInterfaceStyle": "light",
+    "jsEngine": "jsc",
     "newArchEnabled": true,
     "splash": {
       "image": "./src/assets/images/storyland_logo.png",
