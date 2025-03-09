@@ -1,3 +1,4 @@
+/*
 import { useEffect, useRef } from "react";
 import { Purchase, useIAP } from "react-native-iap";
 import { useResources } from "../contexts/ResourceContext";
@@ -80,7 +81,7 @@ export const useAvailablePurchases = () => {
                     // console.log(funcName + "Resolving with purchases:");
                     resolve(availablePurchasesRef.current);
                 }
-                
+
                 setTimeout(checkPurchases, 500);
             };
 
@@ -89,3 +90,5 @@ export const useAvailablePurchases = () => {
 
     return { waitForAvailablePurchases };
 };
+
+*/

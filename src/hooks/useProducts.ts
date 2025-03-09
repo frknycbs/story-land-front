@@ -1,3 +1,5 @@
+/*
+
 import { useEffect, useRef, useState } from "react";
 import { Product, useIAP } from "react-native-iap";
 import { CategoryInfo } from "../types";
@@ -73,7 +75,7 @@ export const useProducts = () => {
     return { waitForProducts };
 };
 
-/* 
+
 Example Product:
 [
     {

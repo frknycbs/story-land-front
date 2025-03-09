@@ -22,6 +22,7 @@ export type CategoryInfo = {
 export interface BackendHealth {
     status: "OK";
     count: number;
+    categories: Category[];
 }
 
 export interface GooglePlayVerifyPurchaseRequestBody {

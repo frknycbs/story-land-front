@@ -1,11 +1,7 @@
-import { useResources } from "../contexts/ResourceContext"
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BackendResource, CategoryInfo, Story } from "../types";
-import { checkBackend } from "../api/checkBackend";
-import { Purchase, useIAP } from "react-native-iap";
-import { useEffect, useRef, useState } from "react";
-import { getCategoryInfo } from "../api/getCategoryInfo";
-import { useAvailablePurchases } from "../hooks/useAvailablePurchases";
+import { BackendResource} from "../types";
+import { Purchase } from "react-native-iap";
 import { getAllResources } from "../api/getAllResources";
 import getCachedResource from "./getCachedResource";
 

@@ -5,22 +5,21 @@ import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from '../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { BackendResource, Category, CategoryInfo, Story } from '../types';
+import { BackendHealth, BackendResource, Category, CategoryInfo, Story } from '../types';
 import { useFonts } from 'expo-font';
 import { Product, Purchase } from 'react-native-iap';
 import { useResources } from '../contexts/ResourceContext';
 import { getResources } from '../utils/getResources';
-import { useAvailablePurchases } from '../hooks/useAvailablePurchases';
+import {
+    getProducts as iapGetProducts,
+    getAvailablePurchases as iapGetAvailablePurchases,
+  } from 'react-native-iap';
 import { checkBackend } from '../api/checkBackend';
-import { useProducts } from '../hooks/useProducts';
-
 
 export const SplashPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [areResourcesLoaded, setAreResourcesLoaded] = useState(false);
     const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable } = useResources()
-    const { waitForAvailablePurchases } = useAvailablePurchases()
-    const { waitForProducts } = useProducts()
 
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
@@ -32,8 +31,8 @@ export const SplashPage = () => {
             try {
 
                 console.log("Checking backend connection...")
-                const backendHealth: boolean | null = await checkBackend()
-                setIsBackendOnline(backendHealth)
+                const backendHealth: BackendHealth | null = await checkBackend()
+                setIsBackendOnline(backendHealth ? true : false)
 
                 console.log("Backend connection: ", backendHealth)
                 let availablePurchases: Purchase[] = []
@@ -41,14 +40,14 @@ export const SplashPage = () => {
 
                 if (backendHealth) {
                     console.log("Backend UP, getting available purchases and products...")
-                    availablePurchases = await waitForAvailablePurchases()
-                    products = await waitForProducts()
+                    availablePurchases = await iapGetAvailablePurchases()
+                    products = await iapGetProducts({ skus: backendHealth.categories })
                 }
 
                 console.log("Available purchases fetched inside Splash Page: ", availablePurchases)
                 console.log("Product list: ", products)
 
-                const resources: BackendResource | null = await getResources(backendHealth, availablePurchases);
+                const resources: BackendResource | null = await getResources(backendHealth ? true : false, availablePurchases);
                 if (!resources)
                     throw ("Couldn't fetch resources in Splash Page...")
 
