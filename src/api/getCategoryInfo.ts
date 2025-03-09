@@ -12,7 +12,7 @@ export const getCategoryInfo = async (): Promise<Array<CategoryInfo> | null> => 
         // console.log("Category info:" , response.data);
         return response.data;
     } catch (error: any) {
-        console.error("Error fetching category info:", error.status ? error.response.data : error);
+        console.log("Error fetching category info:", error);
         return null;
     }
 };

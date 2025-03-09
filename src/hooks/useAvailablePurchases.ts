@@ -15,15 +15,16 @@ export const useAvailablePurchases = () => {
     const isInitialRender = useRef(true);
     const availablePurchasesReadyRef = useRef(false);
     const availablePurchasesRef = useRef<Purchase[] | null>(null);
+    const errorFlag = useRef<boolean>(false);
 
     useEffect(() => {
         if (initConnectionError) {
             if(initConnectionError.toString().includes("Billing is unavailable")) {
-                console.log("Billing is unavailable, no google play account logged in")
+                console.log("[useAvailablePurchases] Billing is unavailable, no google play account logged in")
             }
-            else console.log("Init connection error:", initConnectionError);;
-            availablePurchasesReadyRef.current = true; // Update ref
-            availablePurchasesRef.current = []
+            else console.log("[useAvailablePurchases] Init connection error:", initConnectionError);;
+            
+            errorFlag.current = true
         }
     }, [initConnectionError]);
 
@@ -32,20 +33,19 @@ export const useAvailablePurchases = () => {
             const fetchPurchases = async () => {
                 try {
                     await getAvailablePurchases();
-                    console.log("getAvailablePurchases been called");
+                    console.log("[useAvailablePurchases] getAvailablePurchases been called");
                 } catch (error: any) {
                     if(error.toString().includes("Unable to auto-initialize")) {
-                        console.log("Auto init error, continue waiting for connection to initialize")
+                        console.log("[useAvailablePurchases] Auto init error, continue waiting for connection to initialize")
                         return
                     }
 
                     if(error.toString().includes("Billing is unavailable")) {
-                        console.log("Billing is unavailable, no google play account logged in")
+                        console.log("[useAvailablePurchases] Billing is unavailable, no google play account logged in")
                     }
 
-                    else console.error("Error fetching purchases:", error);
-                    availablePurchasesReadyRef.current = true; // Update ref
-                    availablePurchasesRef.current = []
+                    else console.log("Error fetching purchases:", error);
+                    errorFlag.current = true
                 }
             };
 
@@ -55,32 +55,33 @@ export const useAvailablePurchases = () => {
 
     useEffect(() => {
         if (isInitialRender.current) {
-            console.log("Initial render purchases");
+            console.log("[useAvailablePurchases] Initial render purchases");
             isInitialRender.current = false;
             return;
         }
 
-        console.log("Available purchases fetched:", availablePurchases);
+        console.log("[useAvailablePurchases] Second render, available purchases fetched");
         availablePurchasesRef.current = availablePurchases; // Update ref
         availablePurchasesReadyRef.current = true; // Update ref
         setGooglePlayAvailable(true);
     }, [availablePurchases]);
 
     const waitForAvailablePurchases = (): Promise<Purchase[]> =>
+       
         new Promise((resolve) => {
-            console.log("Starting waitForAvailablePurchases, ready:", availablePurchasesReadyRef.current, "current purchases:", availablePurchasesRef.current);
+             const funcName = "[waitForAvailablePurchases] ";
+            // console.log(funcName + "Starting waitForAvailablePurchases");
 
             const checkPurchases = () => {
+                if(errorFlag.current) 
+                    resolve([])
+    
                 if (availablePurchasesReadyRef.current && availablePurchasesRef.current) {
-                    console.log("Resolving with purchases:", availablePurchasesRef.current);
+                    // console.log(funcName + "Resolving with purchases:");
                     resolve(availablePurchasesRef.current);
-                } else if (!availablePurchasesReadyRef.current) {
-                    console.log("Still waiting, ready:", availablePurchasesReadyRef.current, "purchases:", availablePurchasesRef.current);
-                    setTimeout(checkPurchases, 500); // Poll every 500ms
-                } else {
-                    console.log("Ready but no purchases, resolving empty:", availablePurchasesRef.current);
-                    resolve([]); // Resolve empty if ready but no purchases
                 }
+                
+                setTimeout(checkPurchases, 500);
             };
 
             checkPurchases();

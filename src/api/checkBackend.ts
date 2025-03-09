@@ -15,7 +15,7 @@ export const checkBackend = async (): Promise<boolean | null> => {
         console.log(health, isBackendOnline)
         return isBackendOnline
     } catch (error: any) {
-        console.error("Error fetching status info from backend:", error.status ? error.response.data : error);
+        console.log("Error fetching status info from backend:", error);
         return null;
     }
 };

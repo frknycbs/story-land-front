@@ -268,7 +268,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                             cancelFadeoutTimer()
                             // setPosition(value)
                         }
-                        console.log("User dragging: ", isScrubbing, "On change, position: ", position, "value: ", sliderValue); 
+                        // console.log("User dragging: ", isScrubbing, "On change, position: ", position); 
                     }}
                     onSlidingComplete={handleSliderComplete}
                     onSlidingStart={() => {setIsScrubbing(true); isScrubbingRef.current = true}}

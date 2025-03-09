@@ -21,38 +21,43 @@ export const SplashPage = () => {
     const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable } = useResources()
     const { waitForAvailablePurchases } = useAvailablePurchases()
     const { waitForProducts } = useProducts()
-    
+
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
     });
-  
+
     // Load resources
     useEffect(() => {
         const loadResources = async () => {
             try {
-                
+
                 console.log("Checking backend connection...")
                 const backendHealth: boolean | null = await checkBackend()
                 setIsBackendOnline(backendHealth)
 
                 console.log("Backend connection: ", backendHealth)
+                let availablePurchases: Purchase[] = []
+                let products: Product[] = []
 
-                const availablePurchases: Purchase[] = backendHealth ? await waitForAvailablePurchases() : []
-                const products: Product[] = backendHealth ? await waitForProducts() : []
+                if (backendHealth) {
+                    console.log("Backend UP, getting available purchases and products...")
+                    availablePurchases = await waitForAvailablePurchases()
+                    products = await waitForProducts()
+                }
 
                 console.log("Available purchases fetched inside Splash Page: ", availablePurchases)
                 console.log("Product list: ", products)
 
                 const resources: BackendResource | null = await getResources(backendHealth, availablePurchases);
-                if(!resources)
-                    throw("Couldn't fetch resources in Splash Page...")
+                if (!resources)
+                    throw ("Couldn't fetch resources in Splash Page...")
 
                 if (resources) {
                     setStories(resources.stories)
                     setCategoryInfo(resources.categoryInfo)
                     setAreResourcesLoaded(true)
                 }
-                    
+
             } catch (error) {
                 console.error('Error loading resources:', error);
             }
@@ -64,7 +69,8 @@ export const SplashPage = () => {
 
     // Navigate to Landing when both conditions are met
     useEffect(() => {
-        console.log("areResourcesLoaded: ", areResourcesLoaded, ", fontsLoaded: ", fontsLoaded, ", googlePlayAvailable: ", googlePlayAvailable)
+        console.log("areResourcesLoaded: ", areResourcesLoaded, ", fontsLoaded: ", fontsLoaded, ", googlePlayAvailable: ",
+            googlePlayAvailable, ", isBackendOnline: ", isBackendOnline)
         if (areResourcesLoaded && fontsLoaded) {
             console.log("Backend resources and fonts loaded")
             navigation.reset({
@@ -74,7 +80,7 @@ export const SplashPage = () => {
                 }],
             });
         }
-    }, [areResourcesLoaded, navigation, googlePlayAvailable]);
+    }, [areResourcesLoaded, navigation, googlePlayAvailable, isBackendOnline]);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

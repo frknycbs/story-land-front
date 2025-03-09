@@ -12,10 +12,16 @@ export const useProducts = () => {
     } = useIAP();
 
 
-    const productsRef = useRef< Product[]>(products);
+    const productsRef = useRef< Product[] | null>(null);
+    const errorFlag = useRef<boolean>(false);
+
     useEffect(() => {
         if (initConnectionError) {
-            console.log("Init connection error:", initConnectionError);
+            if(initConnectionError.toString().includes("Billing is unavailable")) {
+                console.log("[useProducts] Billing is unavailable, no google play account logged in")
+            }
+            else console.log("[useProducts] Init connection error:", initConnectionError);
+            errorFlag.current = true
         }
     }, [initConnectionError]);
 
@@ -30,7 +36,8 @@ export const useProducts = () => {
                     const categories: Array<string> = categoryInfo.map(elem => elem.categoryName)
                     await getProducts({ skus: categories });
                 } catch (error) {
-                    console.error("Error fetching products:", error);
+                    console.log("[useProducts] Error fetching products:", error);
+                    errorFlag.current = true
                 }
             };
 
@@ -39,22 +46,29 @@ export const useProducts = () => {
     }, [connected, getProducts]);
 
     useEffect(() => {
-        productsRef.current = products;
+        if(products.length > 0)
+            productsRef.current = products;
     }, [products]);
 
     const waitForProducts = (): Promise<Product[]> =>
         new Promise((resolve) => {
-            if (productsRef.current.length > 0) {
-                resolve(productsRef.current);
-            } else {
-                const checkInterval = setInterval(() => {
-                    if (productsRef.current.length > 0) {
-                        clearInterval(checkInterval);
-                        resolve(productsRef.current);
-                    }
-                }, 500); // Check every 500ms
-            }
-        });
+            const funcName = "[waitForProducts] ";
+           // console.log(funcName + "Starting waitForAvailablePurchases");
+
+           const checkProducts = () => {
+               if(errorFlag.current) 
+                   resolve([])
+   
+               if (productsRef.current) {
+                   // console.log(funcName + "Resolving with purchases:");
+                   resolve(productsRef.current);
+               }
+               
+               setTimeout(checkProducts, 500);
+           };
+
+           checkProducts();
+       });
 
     return { waitForProducts };
 };
