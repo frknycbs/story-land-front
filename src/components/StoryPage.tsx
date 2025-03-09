@@ -73,7 +73,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     }
 
     const startFadeoutTimer = () => {
-        timeoutRef.current = setTimeout(() => fadeout(), 3000000);
+        timeoutRef.current = setTimeout(() => fadeout(), 3000);
     };
 
     const cancelFadeoutTimer = () => {
@@ -190,6 +190,9 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                         setPosition(0);
                         newSound.setPositionAsync(0);
                         newSound.pauseAsync();
+                        setIsPlayPauseVisible(true)
+                        setIsSliderVisible(true)
+                        cancelFadeoutTimer();
                         lastUpdateTime.current = 0
                     }
                 });
@@ -265,13 +268,12 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     onValueChange={(value) => {
                         if(isScrubbing) {
                             setSliderValue(value)
-                            cancelFadeoutTimer()
                             // setPosition(value)
                         }
                         // console.log("User dragging: ", isScrubbing, "On change, position: ", position); 
                     }}
                     onSlidingComplete={handleSliderComplete}
-                    onSlidingStart={() => {setIsScrubbing(true); isScrubbingRef.current = true}}
+                    onSlidingStart={() => {setIsScrubbing(true); isScrubbingRef.current = true; cancelFadeoutTimer();}}
                     thumbTintColor="#fff"
                     minimumTrackTintColor="#fff"
                     maximumTrackTintColor="#000"

@@ -115,7 +115,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, itemWidth: 
         fontSize: 20,
         fontFamily: constants.fontFamily,
         textShadowColor: 'rgba(0, 0, 0, 0.8)',
-        textShadowOffset: { width: 3, height: 2 },
+        textShadowOffset: { width: 1, height: 2 },
         textShadowRadius: 2,
         color: '#fff',
         textAlign: 'center',
