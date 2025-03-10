@@ -6,6 +6,7 @@ import { getStyles } from './PurchaseModal.styles';
 import { Story } from '../types';
 import { StatusBar } from 'expo-status-bar';
 import { useResources } from '../contexts/ResourceContext';
+import { ProgressBar } from './ProgressBar';
 
 // The Purchase Modal Component
 interface PurchaseModalProps {
@@ -16,9 +17,13 @@ interface PurchaseModalProps {
     handlePurchase: (productId: string) => Promise<void>;
     purchaseStatus: "init" | "pending" | "failed" | "success";
     setPurchaseStatus: (status: "init" | "pending" | "failed" | "success") => void;
+    numResourcesCached: number;
+    numResourcesTotal: number;
+    progressBarVisible: boolean;
 }
 
-export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchase, purchaseStatus, setPurchaseStatus }: PurchaseModalProps) => {
+export const PurchaseModal = ({ visible, onClose, name, productId, 
+        handlePurchase, purchaseStatus, setPurchaseStatus, numResourcesCached, numResourcesTotal, progressBarVisible }: PurchaseModalProps) => {
     const { screenWidth, screenHeight } = useScreenDimensions();
 
     const isPortrait = screenHeight > screenWidth;
@@ -113,7 +118,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchas
                         {/* Thumbnail */}
                         
                          <Image source={{ uri: story.disabled ? story.disabledThumbnailURL : story.thumbnailURL }}
-                            style={styles.thumbnail} resizeMode="contain" />
+                            style={styles.thumbnail} resizeMode="cover" />
                             
                         {story.disabled && <View style={styles.overlay}></View>}
                        
@@ -129,7 +134,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchas
                                     so you can't unlock us... 😢😢</Text>}
                                 
                                 {!isBackendOnline &&
-                                    <Text style={styles.offlineText}>I think you're offline, so you can't unlock us 😢😢</Text>}
+                                    <Text style={styles.offlineText}>I think you or Storyland is offline, so you can't unlock us  😢😢</Text>}
 
                                 {/* "All My Friends" Button */}
                                 {isBackendOnline && googlePlayAvailable && <Animated.View
@@ -148,8 +153,9 @@ export const PurchaseModal = ({ visible, onClose, name, productId, handlePurchas
                         {/* Pending, Success, Failed state */}
                         {purchaseStatus === 'pending' && (
                             <View>
-                                <ActivityIndicator size="large" color="rgb(0,0,0)" style={styles.pendingContainer} />
+                                {!progressBarVisible && <ActivityIndicator size="large" color="rgb(0,0,0)" style={styles.pendingContainer} />}
                                 <Text style={styles.pendingText}>Can you please wait for a little bit? Unlocking all my friends... </Text>
+                                {progressBarVisible && <ProgressBar numResourcesCached={numResourcesCached} numTotal={numResourcesTotal} type='purchase'/>}
                             </View>
 
                         )}

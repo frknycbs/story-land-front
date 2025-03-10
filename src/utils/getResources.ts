@@ -5,7 +5,13 @@ import { Purchase } from "react-native-iap";
 import { getAllResources } from "../api/getAllResources";
 import getCachedResource from "./getCachedResource";
 
-export const getResources = async (isBackendOnline: boolean | null, availablePurchases: Purchase[]): Promise<BackendResource | null> => {
+export const getResources = async (
+        isBackendOnline: boolean | null, 
+        availablePurchases: Purchase[],
+        setNumResourcesCached: React.Dispatch<React.SetStateAction<number>>,
+        setNumResourcesTotal: React.Dispatch<React.SetStateAction<number>>,
+        setProgressBarVisible: React.Dispatch<React.SetStateAction<boolean>>
+    ): Promise<BackendResource | null> => {
     try {
         
         // IF we have cached resources, set them to context initially
@@ -41,12 +47,33 @@ export const getResources = async (isBackendOnline: boolean | null, availablePur
             return cachedResources
         }
 
-        console.log("All resources fetched from backend, starting caching...")
-        console.time("cache")
+        // Backend is online, decide whether we want to cache
+        console.log("All resources fetched from backend, checking whether to re-cache...")
+        if(cachedResources) {
+            const disabledCountBackend = resources.stories.filter(story => story.disabled).length
+            const disabledCountCached = cachedResources ? cachedResources.stories.filter(story => story.disabled).length : 0
+            if (disabledCountBackend >= disabledCountCached) {
+                console.log("Backend has more disabled stories than cache, not re-caching...")
+                return cachedResources
+            }
+        }
+        
+    
+        console.log("Either no cache, or cache has higher disabled stories than backend, caching...")
+        let numTotalResources: number = 0
+        numTotalResources += resources.categoryInfo.length
+
+        for(const story of resources.stories) {
+            numTotalResources += story.disabled ? 1 : 4
+        }
+
+        setNumResourcesTotal(numTotalResources)
+        setProgressBarVisible(true)
 
         // Now, we cache all resources concurrently
         await Promise.all(resources.categoryInfo.map(async (singleCategoryInfo) => {
             singleCategoryInfo.bgImageURL = await getCachedResource(singleCategoryInfo.bgImageURL);
+            setNumResourcesCached((prev) => prev + 1);
         }));
 
         await Promise.all(resources.stories.map(async (story) => {
@@ -54,17 +81,20 @@ export const getResources = async (isBackendOnline: boolean | null, availablePur
                 story.disabledThumbnailURL = await getCachedResource(story.disabledThumbnailURL);
             }
 
+            setNumResourcesCached((prev) => prev + 1);
+
             if (!story.disabled) {
                 [story.audioURL, story.imageURL, story.thumbnailURL] = await Promise.all([
                     getCachedResource(story.audioURL),
                     getCachedResource(story.imageURL),
                     getCachedResource(story.thumbnailURL)
                 ]);
+                setNumResourcesCached((prev) => prev + 3);
             }
         }));
 
         console.log("Caching done, resources set in async storage, stories length: ", resources.stories.length)
-        console.timeEnd("cache")
+       
         await AsyncStorage.setItem("resources", JSON.stringify(resources))
       
         return resources

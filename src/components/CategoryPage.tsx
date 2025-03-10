@@ -29,6 +29,10 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
 
     const { screenWidth, screenHeight } = useScreenDimensions();
 
+    const [numResourcesCached, setNumResourcesCached] = useState<number>(0);
+    const [numResourcesTotal, setNumResourcesTotal] = useState<number>(0);
+    const [progressBarVisible, setProgressBarVisible] = useState(false);
+
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 5 : 3), [screenWidth, screenHeight]);
     // Calculate item width dynamically
     const itemWidth = screenWidth / numColumns;
@@ -57,7 +61,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 requestPurchase({ skus: [productId] }); // No need to return anything
                 console.log("Purchase request sent successfully");
             }, 1500)
-            
+
         } catch (error) {
             console.error('Purchase request failed:', error);
             setPurchaseStatus("failed");
@@ -71,7 +75,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
         }
 
         const processPurchase = async () => {
-            if(isPaymentProcessing) {
+            if (isPaymentProcessing) {
                 console.log("Payment already being processed")
                 return
             }
@@ -96,38 +100,50 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 }
 
                 // Purchase state must be 0 -- COMPLETED, Send receipt to backend for verification
-                const unlockedStories: Story[] | null = await verifyPurchase(currentPurchase);
+
+                const unlockedStories: Story[] | null = await verifyPurchase(
+                    currentPurchase, setNumResourcesCached, setNumResourcesTotal, setProgressBarVisible
+                );
                 console.log("Backend purchase verification result:", unlockedStories ? true : false);
                 if (!unlockedStories) {
                     throw ('Purchase verification failed');
                 }
 
                 // ✅ Only finish transaction after successful verification
-                await finishTransaction({ purchase: currentPurchase, isConsumable: false });
-                console.log('Transaction Finished Successfully');
+                try {
+                    await finishTransaction({ purchase: currentPurchase, isConsumable: false });
+                    console.log('Transaction Finished Successfully');
+                    const newStories: Story[] = stories.filter(story => story.category !== singleCategoryInfo.categoryName).concat(unlockedStories)
+                    setStories(newStories)
 
-                const newStories: Story[] = stories.filter(story => story.category !== singleCategoryInfo.categoryName).concat(unlockedStories)
-                setStories(newStories)
+                    let cachedResourcesStr: string | null = await AsyncStorage.getItem("resources")
+                    if (!cachedResourcesStr) {
+                        cachedResourcesStr = JSON.stringify({ stories: newStories, categoryInfo })
+                        await AsyncStorage.setItem("resources", cachedResourcesStr);
+                    }
 
-                let cachedResourcesStr: string | null = await AsyncStorage.getItem("resources")
-                if(!cachedResourcesStr) {
-                    cachedResourcesStr = JSON.stringify({ stories: newStories, categoryInfo })
-                    await AsyncStorage.setItem("resources", cachedResourcesStr);
+                    else {
+                        const cachedResources: BackendResource = JSON.parse(cachedResourcesStr)
+                        console.log("Old cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
+                        cachedResources.stories = newStories
+                        console.log("New cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
+                        await AsyncStorage.setItem("resources", JSON.stringify(cachedResources));
+                    }
                 }
 
-                else {
-                    const cachedResources: BackendResource = JSON.parse(cachedResourcesStr)
-                    console.log("Old cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
-                    cachedResources.stories = newStories
-                    console.log("New cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
-                    await AsyncStorage.setItem("resources", JSON.stringify(cachedResources));  
+                catch (err) {
+                    console.log("Purchases verified by backend, but failed to finalize transaction", err)
                 }
-                
-                setPurchaseStatus("success");
+
+                // Here, purchase can be considered successful
+                setPurchaseStatus("success")
+
             } catch (error) {
                 console.error('Error processing purchase:', error);
                 setPurchaseStatus("failed");
             }
+
+            setProgressBarVisible(false)
             setIsPaymentProcessing(false)
         };
 
@@ -217,8 +233,8 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                                     }
                                 }}
                             >
-                                <Image source={{ uri: item.disabled ? item.disabledThumbnailURL : item.thumbnailURL }} 
-                                        style={styles.thumbnailImage} />
+                                <Image source={{ uri: item.disabled ? item.disabledThumbnailURL : item.thumbnailURL }}
+                                    style={styles.thumbnailImage} />
                                 {item.disabled && <View style={styles.overlay}></View>}
                             </TouchableOpacity>
                             <Text style={styles.characterName}>{item.characterName}</Text>
@@ -239,6 +255,9 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                         handlePurchase={handlePurchase}
                         purchaseStatus={purchaseStatus}
                         setPurchaseStatus={setPurchaseStatus}
+                        numResourcesCached={numResourcesCached}
+                        numResourcesTotal={numResourcesTotal}
+                        progressBarVisible={progressBarVisible}
                     />
                 )}
             </View>

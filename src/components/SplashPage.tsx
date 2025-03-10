@@ -13,8 +13,9 @@ import { getResources } from '../utils/getResources';
 import {
     getProducts as iapGetProducts,
     getAvailablePurchases as iapGetAvailablePurchases,
-  } from 'react-native-iap';
+} from 'react-native-iap';
 import { checkBackend } from '../api/checkBackend';
+import { ProgressBar } from './ProgressBar';
 
 export const SplashPage = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -24,6 +25,15 @@ export const SplashPage = () => {
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
     });
+
+    const [numResourcesCached, setNumResourcesCached] = useState<number>(0);
+    const [numResourcesTotal, setNumResourcesTotal] = useState<number>(0);
+    const [progressBarVisible, setProgressBarVisible] = useState(false);
+
+
+    useEffect(() => {
+       console.log("numResourcesCached: ", numResourcesCached, ", numResourcesTotal: ", numResourcesTotal)
+    }, [numResourcesCached, numResourcesTotal]);
 
     // Load resources
     useEffect(() => {
@@ -40,14 +50,22 @@ export const SplashPage = () => {
 
                 if (backendHealth) {
                     console.log("Backend UP, getting available purchases and products...")
-                    availablePurchases = await iapGetAvailablePurchases()
-                    products = await iapGetProducts({ skus: backendHealth.categories })
+                    try {
+                        availablePurchases = await iapGetAvailablePurchases()
+                        products = await iapGetProducts({ skus: backendHealth.categories })
+                        setGooglePlayAvailable(true)
+                    }
+
+                    catch (err) {
+                        console.log("IAP Error: ", err)
+                    }
                 }
 
                 console.log("Available purchases fetched inside Splash Page: ", availablePurchases)
                 console.log("Product list: ", products)
 
-                const resources: BackendResource | null = await getResources(backendHealth ? true : false, availablePurchases);
+                const resources: BackendResource | null = await getResources(
+                    backendHealth ? true : false, availablePurchases, setNumResourcesCached, setNumResourcesTotal, setProgressBarVisible);
                 if (!resources)
                     throw ("Couldn't fetch resources in Splash Page...")
 
@@ -72,6 +90,7 @@ export const SplashPage = () => {
             googlePlayAvailable, ", isBackendOnline: ", isBackendOnline)
         if (areResourcesLoaded && fontsLoaded) {
             console.log("Backend resources and fonts loaded")
+            setProgressBarVisible(false)
             navigation.reset({
                 index: 0,
                 routes: [{
@@ -91,6 +110,7 @@ export const SplashPage = () => {
             >
                 <Image source={require('../assets/images/storyland_logo.png')} style={styles.logo} />
                 <Image source={require('../assets/images/storyland_text.png')} style={styles.logoText} />
+                {progressBarVisible && <ProgressBar numResourcesCached={numResourcesCached} numTotal={numResourcesTotal} type="splash" />}
             </ImageBackground>
         </SafeAreaView>
     );
@@ -111,11 +131,5 @@ const styles = StyleSheet.create({
         width: 300, // Adjust as needed
         height: 100, // Adjust as needed
         resizeMode: 'contain',
-    },
-    appName: {
-        marginTop: 20,
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
     },
 });
