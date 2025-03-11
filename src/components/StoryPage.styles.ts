@@ -45,19 +45,15 @@ export const getStyles = (screenWidth: number, screenHeight: number) => StyleShe
     },
     playButton: {
         position: 'absolute',
-        top: screenHeight > screenWidth ? '50%' : '45%',
-        left: '45%',
-        transform: [{ translateX: -50 }, { translateY: -50 }], // Shift left and up by half its size
+        alignSelf: 'center',
+        top: screenHeight * 0.5 - 75,
         zIndex: 1,
-        // backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    
     },
 
     pauseButton: {
         position: 'absolute',
-        top: screenHeight > screenWidth ? '51%' : '47%',
-        left: screenHeight > screenWidth ? '49%' : '47%',
-        transform: [{ translateX: -50 }, { translateY: -50 }], // Shift left and up by half its size
+        alignSelf: 'center',
+        top: screenHeight * 0.5 - 60,
         zIndex: 1,
         // backgroundColor: 'rgba(0, 0, 0, 0.5)',
     

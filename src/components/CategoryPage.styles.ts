@@ -6,6 +6,54 @@ export const getStyles = (screenWidth: number, screenHeight: number, itemWidth: 
         flex: 1,
         resizeMode: 'cover',
     },
+
+    headerContainer: {
+        flex: 1,
+        zIndex: 1,
+        flexDirection: screenWidth > screenHeight ? 'row' : 'column',
+        // justifyContent: 'space-between',
+    },
+
+    logoImage: {
+        width: constants.categoryLogoImageSize,
+        height: constants.categoryLogoImageSize,
+
+        ...(screenHeight > screenWidth
+            ? { // Portrait mode
+                marginTop: '10%',
+                alignSelf: 'center'
+            }
+            : { // Landscape mode
+                marginTop: '5%',
+                left: '10%', 
+            }),
+    },
+
+    welcomeText: {
+        height: 100,
+        fontFamily: 'BubblegumSans',
+        textShadowColor: 'rgba(0, 0, 0, 1)',
+        textShadowOffset: { width: 3, height: 2 },
+        textShadowRadius: 2,
+        color: '#fff',
+        textAlign: 'center', // Ensures multiline text stays centered
+        maxWidth: '80%', // Prevents it from stretching too wide
+        
+        ...(screenHeight > screenWidth
+            ? {
+                marginTop: 10,
+                alignSelf: 'center', // Centers the text horizontally
+                fontSize: 28,
+                
+            } : {
+                marginTop: 10 + constants.categoryLogoImageSize / 2,
+                fontSize: 28,
+                maxWidth: '80%', // Prevents it from stretching too wide
+            }),
+
+
+    },
+
     imageBackground: {
         aspectRatio: 1,
         zIndex: 2,
@@ -79,32 +127,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, itemWidth: 
         resizeMode: 'contain',
     },
 
-    welcomeText: {
-        position: 'absolute',
-        alignSelf: 'center', // Centers the text horizontally
-        zIndex: 1,
-        fontFamily: 'BubblegumSans',
-        textShadowColor: 'rgba(0, 0, 0, 1)',
-        textShadowOffset: { width: 3, height: 2 },
-        textShadowRadius: 2,
-        color: '#fff',
-        textAlign: 'center', // Ensures multiline text stays centered
-        ...(screenHeight > screenWidth
-            ? {
-                top: constants.categoryLogoImageSize + 60,
-                fontSize: 28,
-                marginHorizontal: 20, // Adds left & right margins
-                maxWidth: '80%', // Prevents it from stretching too wide
-            } : {
-                top: constants.categoryLogoImageSize / 2 + 10,
-                left: constants.categoryLogoImageSize + 80,
-                fontSize: 28,
-                marginHorizontal: 30, // Adds left & right margins
-                maxWidth: '80%', // Prevents it from stretching too wide
-            }),
-
-
-    },
+    
 
     itemContainer: {
         alignItems: 'center', // Centers the name below the image

@@ -50,16 +50,16 @@ export const getResources = async (
         // Backend is online, decide whether we want to cache
         console.log("All resources fetched from backend, checking whether to re-cache...")
         if(cachedResources) {
-            const disabledCountBackend = resources.stories.filter(story => story.disabled).length
-            const disabledCountCached = cachedResources ? cachedResources.stories.filter(story => story.disabled).length : 0
-            if (disabledCountBackend >= disabledCountCached) {
-                console.log("Backend has more disabled stories than cache, not re-caching...")
+            const enabledCountBackend = resources.stories.filter(story => !story.disabled).length
+            const enabledCountCached = cachedResources ? cachedResources.stories.filter(story => !story.disabled).length : 0
+            if (enabledCountCached >= enabledCountBackend) {
+                console.log("Cache has equal or more enabled stories than backend, not re-caching...", enabledCountCached, enabledCountBackend)
                 return cachedResources
             }
         }
         
     
-        console.log("Either no cache, or cache has higher disabled stories than backend, caching...")
+        console.log("Either no cache, or backend has higher enabled stories than current cache, caching...")
         let numTotalResources: number = 0
         numTotalResources += resources.categoryInfo.length
 

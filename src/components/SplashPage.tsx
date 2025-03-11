@@ -52,7 +52,7 @@ export const SplashPage = () => {
                     console.log("Backend UP, getting available purchases and products...")
                     try {
                         availablePurchases = await iapGetAvailablePurchases()
-                        products = await iapGetProducts({ skus: backendHealth.categories })
+                        products = await iapGetProducts({ skus: ["premium"] })
                         setGooglePlayAvailable(true)
                     }
 
@@ -77,6 +77,7 @@ export const SplashPage = () => {
 
             } catch (error) {
                 console.error('Error loading resources:', error);
+                setProgressBarVisible(false)
             }
         };
 

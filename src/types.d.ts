@@ -29,6 +29,7 @@ export interface GooglePlayVerifyPurchaseRequestBody {
     purchaseToken: string;
     productId: string;
     packageName: string;
+    orderId: string;
 }
 
 export interface GooglePlayPurchaseReceipt {

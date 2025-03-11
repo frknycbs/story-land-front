@@ -58,7 +58,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
         try {
             setPurchaseStatus("pending");
             setTimeout(() => {
-                requestPurchase({ skus: [productId] }); // No need to return anything
+                requestPurchase({ skus: ["premium"] }); // No need to return anything
                 console.log("Purchase request sent successfully");
             }, 1500)
 
@@ -113,19 +113,18 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 try {
                     await finishTransaction({ purchase: currentPurchase, isConsumable: false });
                     console.log('Transaction Finished Successfully');
-                    const newStories: Story[] = stories.filter(story => story.category !== singleCategoryInfo.categoryName).concat(unlockedStories)
-                    setStories(newStories)
+                    setStories(unlockedStories)
 
                     let cachedResourcesStr: string | null = await AsyncStorage.getItem("resources")
                     if (!cachedResourcesStr) {
-                        cachedResourcesStr = JSON.stringify({ stories: newStories, categoryInfo })
+                        cachedResourcesStr = JSON.stringify({ stories: unlockedStories, categoryInfo })
                         await AsyncStorage.setItem("resources", cachedResourcesStr);
                     }
 
                     else {
                         const cachedResources: BackendResource = JSON.parse(cachedResourcesStr)
                         console.log("Old cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
-                        cachedResources.stories = newStories
+                        cachedResources.stories = unlockedStories
                         console.log("New cachedResource disabled story length:", cachedResources.stories.filter(story => story.disabled).length)
                         await AsyncStorage.setItem("resources", JSON.stringify(cachedResources));
                     }
@@ -194,13 +193,17 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 />
             </TouchableOpacity>
 
-            <Image
-                source={require('../assets/images/storyland_logo.png')}
-                style={generalStyles.logoImage}
-            />
-            <Text style={styles.welcomeText}>
-                Hi there! Pick your friend, and let's start!!
-            </Text>
+            <View style={styles.headerContainer}>
+                <Image
+                    source={require('../assets/images/storyland_logo.png')}
+                    style={styles.logoImage}
+                />
+                <Text style={styles.welcomeText}>
+                    Hi there! Pick your friend, and let's start!!
+                </Text>
+
+            </View>
+
 
             <ScrollView horizontal={screenHeight > screenWidth}
                 contentOffset={screenHeight > screenWidth ? { x: (screenHeight - screenWidth) / 2, y: 0 } : { x: 0, y: (screenWidth - screenHeight) / 2 }}

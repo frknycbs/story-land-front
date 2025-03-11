@@ -14,7 +14,8 @@ export const verifyPurchase = async (purchase: ProductPurchase,
         const reqBody: GooglePlayVerifyPurchaseRequestBody = {
             packageName: transactionReceipt.packageName,
             productId: transactionReceipt.productId,
-            purchaseToken: transactionReceipt.purchaseToken
+            purchaseToken: transactionReceipt.purchaseToken,
+            orderId: transactionReceipt.orderId
         }
         const response = await axios.post(constants.BACKEND_API_URL + `/purchase/verifyPurchase`, reqBody);
         if(!response.data)

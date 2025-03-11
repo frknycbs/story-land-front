@@ -18,13 +18,14 @@ export const getAllResources = async (availablePurchases: ProductPurchase[]): Pr
             const reqBody: GooglePlayVerifyPurchaseRequestBody = {
                 packageName: transactionReceipt.packageName,
                 productId: transactionReceipt.productId,
-                purchaseToken: transactionReceipt.purchaseToken
+                purchaseToken: transactionReceipt.purchaseToken,
+                orderId: transactionReceipt.orderId
             }
 
             reqBodies.push(reqBody)
         }
 
-        const response = await axios.post(constants.BACKEND_API_URL + `/purchase/verifyAvailablePurchases`, reqBodies, { timeout: 5000 });
+        const response = await axios.post(constants.BACKEND_API_URL + `/purchase/verifyAvailablePurchases`, reqBodies.length > 0 ? reqBodies.slice(0,1) : [], { timeout: 5000 });
 
         if (!response.data)
             throw ("No response data found")
