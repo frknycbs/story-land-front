@@ -16,11 +16,35 @@ import {
 } from 'react-native-iap';
 import { checkBackend } from '../api/checkBackend';
 import { ProgressBar } from './ProgressBar';
+import { useScreenDimensions } from '../hooks/useDimensions';
+import { constants } from '../constants';
 
 export const SplashPage = () => {
+    const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        logo: {
+            width: isTablet ? constants.imageSizeLarge : ( Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
+            height: isTablet ? constants.imageSizeLarge :  ( Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
+            resizeMode: 'contain',
+        },
+        logoText: {
+            width: isTablet ? 450 : 300, // Adjust as needed
+            height: isTablet ? 150 : 100, // Adjust as needed
+            resizeMode: 'contain',
+        },
+    });
+
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [areResourcesLoaded, setAreResourcesLoaded] = useState(false);
     const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable } = useResources()
+
+    
 
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
@@ -117,20 +141,4 @@ export const SplashPage = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        width: 200, // Adjust as needed
-        height: 200, // Adjust as needed
-        resizeMode: 'contain',
-    },
-    logoText: {
-        width: 300, // Adjust as needed
-        height: 100, // Adjust as needed
-        resizeMode: 'contain',
-    },
-});
+

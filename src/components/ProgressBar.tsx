@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Animated } from "react-native";
 import { getStyles } from './PurchaseModal.styles';
 import { useScreenDimensions } from "../hooks/useDimensions";
+import { constants } from "../constants";
 
 interface ProgressBarProps {
     numResourcesCached: number;
@@ -10,10 +11,10 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ numResourcesCached, numTotal, type }) => {
-     const { screenWidth, screenHeight } = useScreenDimensions();
-     const isPortrait = screenHeight > screenWidth;
+    const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
+    const isPortrait = screenHeight > screenWidth;
 
-    const styles = getStyles(screenWidth, screenHeight, isPortrait)
+    const styles = getStyles(screenWidth, screenHeight, isTablet, isPortrait)
     const progress = new Animated.Value(Math.min((numResourcesCached / numTotal) * 100, 100));
 
     useEffect(() => {
@@ -30,7 +31,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ numResourcesCached, nu
     });
 
     return (
-        <View style={ type === "splash" ? styles.splashProgressBar : styles.purchaseProgressBar}>
+        <View style={type === "splash" ? styles.splashProgressBar : styles.purchaseProgressBar}>
             <Animated.View
                 style={{
                     width: widthInterpolation,

@@ -7,6 +7,7 @@ import { Story } from '../types';
 import { StatusBar } from 'expo-status-bar';
 import { useResources } from '../contexts/ResourceContext';
 import { ProgressBar } from './ProgressBar';
+import { constants } from '../constants';
 
 // The Purchase Modal Component
 interface PurchaseModalProps {
@@ -24,7 +25,7 @@ interface PurchaseModalProps {
 
 export const PurchaseModal = ({ visible, onClose, name, productId, 
         handlePurchase, purchaseStatus, setPurchaseStatus, numResourcesCached, numResourcesTotal, progressBarVisible }: PurchaseModalProps) => {
-    const { screenWidth, screenHeight } = useScreenDimensions();
+    const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
     const isPortrait = screenHeight > screenWidth;
     const timeoutRef = useRef<NodeJS.Timeout | number | null>(null);
@@ -97,7 +98,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
         await handlePurchase(productId); // Mock purchase handler
     };
 
-    const styles = getStyles(screenWidth, screenHeight, isPortrait);
+    const styles = getStyles(screenWidth, screenHeight, isTablet, isPortrait);
 
     return (
         <Modal visible={visible} statusBarTranslucent={true} transparent={true} animationType="fade">

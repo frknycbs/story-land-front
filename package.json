@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "push" : "git add . && git commit -m 'update' && git push"
+    "push" : "git add . && git commit -m 'auto-update' && git push"
   },
   "dependencies": {
     "@expo/metro-config": "^0.19.11",

@@ -14,6 +14,7 @@ import { ProductPurchase, Purchase, PurchaseResult, requestPurchase, useIAP } fr
 import { verifyPurchase } from '../api/verifyPurchase';
 import { useResources } from '../contexts/ResourceContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { constants } from '../constants';
 
 type CategoryPageProps = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
@@ -27,7 +28,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const [name, setName] = useState<string | null>(null);
     const [purchaseStatus, setPurchaseStatus] = useState<"init" | "pending" | "failed" | "success">("init") // Store purchase status
 
-    const { screenWidth, screenHeight } = useScreenDimensions();
+    const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
     const [numResourcesCached, setNumResourcesCached] = useState<number>(0);
     const [numResourcesTotal, setNumResourcesTotal] = useState<number>(0);
@@ -36,7 +37,8 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 5 : 3), [screenWidth, screenHeight]);
     // Calculate item width dynamically
     const itemWidth = screenWidth / numColumns;
-    const styles = getStyles(screenWidth, screenHeight, itemWidth);
+   
+    const styles = getStyles(screenWidth, screenHeight, isTablet, itemWidth);
 
     const generalStyles = getGeneralStyles(screenWidth, screenHeight);
 
@@ -199,7 +201,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                     style={styles.logoImage}
                 />
                 <Text style={styles.welcomeText}>
-                    Hi there! Pick your friend, and let's start!!
+                    Hi there! Pick your friend, and let's start!! 🚀🚀
                 </Text>
 
             </View>

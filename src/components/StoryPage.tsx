@@ -25,7 +25,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [isSpeakerVisible, setIsSpeakerVisible] = useState(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     
-    const { screenWidth, screenHeight } = useScreenDimensions();
+    const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
     const [fadeAnim] = useState(new Animated.Value(1));
     const [fadeAnimSpeaker] = useState(new Animated.Value(0));

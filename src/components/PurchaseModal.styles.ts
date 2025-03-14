@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
+import { constants } from "../constants";
 
-export const getStyles = (screenWidth: number, screenHeight: number, isPortrait: true | false) => StyleSheet.create({
+export const getStyles = (screenWidth: number, screenHeight: number, isTablet: boolean, isPortrait: true | false) => StyleSheet.create({
     modalBackground: {
         flex: 1,
         justifyContent: 'center',
@@ -13,12 +14,19 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         height: '100%',
     },
     imageContainer: {
-        width: isPortrait ? 300 : 400,
-        height: isPortrait ? 420 : 320,
         borderRadius: 30,
         borderColor: 'black',
         borderWidth: 4,
-        overflow: 'hidden'
+        overflow: 'hidden',
+
+        
+        ...(isTablet ? { 
+            width: 400,
+            height: 500,
+        } : { 
+            width: isPortrait ? 300 : 400,
+            height: isPortrait ? 420 : 320,
+        }),
     },
 
     purchaseProgressBar: {
@@ -32,12 +40,17 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         borderWidth: 2,
         borderColor: "rgb(0, 202, 0)",
         overflow: "hidden",
+
+        ...isTablet && {
+            bottom: -50,
+            width: 300
+        }
        
     },
 
     splashProgressBar: {
         width: "80%",
-        height: 20,
+        height: Math.min(screenHeight, screenWidth) > 350 ? 20 : 15,
         backgroundColor: "#FFE4B5",
         borderRadius: 10,
         borderWidth: 2,
@@ -57,7 +70,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         position: 'absolute',
         top: 20,
         fontFamily: 'BubblegumSans',
-        fontSize: 30,
+        fontSize: isTablet ? constants.fontSizeLarge : constants.fontSizeSmall,
         textAlign: 'center',
         color: 'white',
         textShadowColor: 'rgba(0, 0, 0, 1)',
@@ -82,10 +95,10 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         borderRadius: 50,
         borderColor: '#000',
         borderWidth: 3,
-        width: 150,
-        height: 150,
-        top: isPortrait ? 80 : 80,
-        left: isPortrait ? null : 20,
+        width: isTablet ? constants.imageSizeMedium : constants.imageSizeSmall,
+        height: isTablet ? constants.imageSizeMedium : constants.imageSizeSmall,
+        top: isPortrait ? 80 : (isTablet ? 80 : 80),
+        left: isPortrait ? null : (isTablet ? null : 20),
        
         // Landscape Mode (No need for centering, just place the image)
         // Position is kept on the left with 20px margin
@@ -99,10 +112,10 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         borderRadius: 50,
         borderColor: '#000',
         // borderWidth: 3,
-        width: 150,
-        height: 150,
-        top: isPortrait ? 80 : 80,
-        left: isPortrait ? null : 20,
+        width: isTablet ? constants.imageSizeMedium : constants.imageSizeSmall,
+        height: isTablet ? constants.imageSizeMedium : constants.imageSizeSmall,
+        top: isPortrait ? 80 : (isTablet ? 80 : 80),
+        left: isPortrait ? null : (isTablet ? null : 20),
 
         // Landscape Mode (No need for centering, just place the image)
         // Position is kept on the left with 20px margin
@@ -111,18 +124,18 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
 
     instructionText: {
         position : 'absolute',
-        top: 250,
+        top: isTablet ? 300 : 250,
         fontFamily: 'BubblegumSans',
-        fontSize: 18,
+        fontSize: isTablet ? constants.fontSizeSmall : constants.fontSizeXxs,
         textAlign: 'center',
         color: 'white',
         marginBottom: 20,
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 3, height: 2 },
         textShadowRadius: 2,
-        width: 200,
+        width: isTablet ? 300 : 200,
 
-        ...!isPortrait && {
+        ...!isPortrait && !isTablet && {
             top: 90,
             left: 180,
         }
@@ -130,18 +143,18 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
 
     offlineText: {
         position : 'absolute',
-        top: 260,
+        top: isTablet ? 300 : 260,
         fontFamily: 'BubblegumSans',
-        fontSize: 18,
+        fontSize: isTablet ? constants.fontSizeSmall : constants.fontSizeXxs,
         textAlign: 'center',
         color: 'white',
         marginBottom: 20,
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 3, height: 2 },
         textShadowRadius: 2,
-        width: 220,
+        width: isTablet ? 300 : 220,
 
-        ...!isPortrait && {
+        ...!isPortrait && !isTablet && {
             width: 200,
             top: '40%',
             left: 180,
@@ -150,7 +163,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
     
     purchaseButtonCombo: {
         position: 'absolute',
-        top: 320,
+        top: isTablet ? 400 : 320,
         backgroundColor: 'rgb(0, 119, 0)',
         paddingVertical: 10,
         paddingHorizontal: 20,
@@ -159,7 +172,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         borderRadius: 10,
         marginBottom: 5,
 
-        ...!isPortrait && {
+        ...!isPortrait && !isTablet && {
             top: 170,
             left: 210,
         }
@@ -167,7 +180,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
     buttonText: {
         color: 'white',
         fontFamily: 'BubblegumSans',
-        fontSize: 18,
+        fontSize: isTablet ? constants.fontSizeXs : constants.fontSizeXxs,
     },
     
     pendingContainer: {
@@ -177,26 +190,35 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         // left: isPortrait ? 0 : 150,
         // right: 0,
         bottom: isPortrait ? -60 : -90,
+
+        ...isTablet && {
+            bottom: -60
+        }
     },
 
     finalText: {
         fontFamily: 'BubblegumSans',
-        fontSize: 20,
+        fontSize: isTablet ? constants.fontSizeSmall : constants.fontSizeXxs,
         textAlign: 'center',
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 2,
         color: 'white',
-        ...isPortrait && {
+        ...isPortrait && !isTablet && {
             width: 200,
             marginTop: 180,
             // marginLeft: 140,
         },
 
-        ...!isPortrait && {
+        ...!isPortrait && !isTablet && {
             width: 200,
             marginTop: 10,
             marginLeft: 160,
+        },
+
+        ...isTablet && {
+            width: 300,
+            marginTop: 240,
         }
 
     },
@@ -205,17 +227,22 @@ export const getStyles = (screenWidth: number, screenHeight: number, isPortrait:
         fontFamily: 'BubblegumSans',
         // borderColor: 'black',
         // borderWidth: 2,
-        fontSize: 20,
+        fontSize: isTablet ? constants.fontSizeSmall : constants.fontSizeXxs,
         textAlign: 'center',
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 2,
         color: 'white',
         marginTop: isPortrait ? 160 : 240,
-        ...!isPortrait && {
+        ...!isPortrait && !isTablet && {
             width: 200,
             marginTop: 10,
             marginLeft: 160,
+        },
+
+        ...isTablet && {
+            width: 300,
+            marginTop: 220,
         }
     },
 
