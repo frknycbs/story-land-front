@@ -46,7 +46,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const [isThumbnailPressed, setIsThumbnailPressed] = useState(false);
     const [selectedStory, setSelectedStory] = useState<Story | null>(null);
 
-  
+
 
     const {
         connected,
@@ -121,6 +121,12 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 try {
                     await finishTransaction({ purchase: currentPurchase, isConsumable: false });
                     console.log('Transaction Finished Successfully');
+                }
+                catch (err) {
+                    console.log("Purchases verified by backend, but failed to finalize transaction", err)
+                }
+
+                try {
                     setStories(unlockedStories)
 
                     let cachedResourcesStr: string | null = await AsyncStorage.getItem("resources")
@@ -139,7 +145,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
                 }
 
                 catch (err) {
-                    console.log("Purchases verified by backend, but failed to finalize transaction", err)
+                    console.log("Error regarding cached resources", err)
                 }
 
                 // Here, purchase can be considered successful
@@ -190,7 +196,7 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => {
-                   navigation.goBack();
+                    navigation.goBack();
                 }}
             >
                 <Image
