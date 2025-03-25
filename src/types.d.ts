@@ -77,4 +77,4 @@ export interface BackendResource {
     stories: Story[];
 }
 
-export type Category = 'animals' | 'space' | 'nature' | 'vehicles'
+export type Category = 'animals' | 'space' | 'nature' | 'vehicles' | 'toys' | 'home'

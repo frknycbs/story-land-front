@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useResources } from '../contexts/ResourceContext';
 import { ProgressBar } from './ProgressBar';
 import { constants } from '../constants';
+import { Audio } from 'expo-av';
 
 // The Purchase Modal Component
 interface PurchaseModalProps {
@@ -23,8 +24,8 @@ interface PurchaseModalProps {
     progressBarVisible: boolean;
 }
 
-export const PurchaseModal = ({ visible, onClose, name, productId, 
-        handlePurchase, purchaseStatus, setPurchaseStatus, numResourcesCached, numResourcesTotal, progressBarVisible }: PurchaseModalProps) => {
+export const PurchaseModal = ({ visible, onClose, name, productId,
+    handlePurchase, purchaseStatus, setPurchaseStatus, numResourcesCached, numResourcesTotal, progressBarVisible }: PurchaseModalProps) => {
     const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
     const isPortrait = screenHeight > screenWidth;
@@ -35,6 +36,8 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
 
     const backgroundColor = useRef(new Animated.Value(0)).current;
 
+    const successFile = require("../assets/sounds/success.mp3");
+   
     useEffect(() => {
         if (visible) {
             const animateColor = () => {
@@ -76,13 +79,25 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
     }, [visible]);
 
     useEffect(() => {
-        console.log("Purchase: ", purchaseStatus)
-        if (purchaseStatus === "pending" || purchaseStatus === "init")
-            return
+        const handlePurchaseStatusChange = async(status: "init" | "pending" | "failed" | "success") => {
+            console.log("Purchase: ", purchaseStatus)
+            if (purchaseStatus === "pending" || purchaseStatus === "init")
+                return
 
-        // If here, purchase finished
-        timeoutRef.current = setTimeout(clearAndClose, 2000); // Close after 2 seconds
+            // If here, purchase finished, play success effect
+            if (purchaseStatus === "success") {
+                const { sound } = await Audio.Sound.createAsync(successFile, {
+                    shouldPlay: true,
+                    isLooping: false,
+                });
 
+                await sound.playAsync();
+            }
+
+            timeoutRef.current = setTimeout(clearAndClose, 2000); // Close after 2 seconds
+        }
+
+        handlePurchaseStatusChange(purchaseStatus);
     }, [purchaseStatus]);
 
     // Function to clear timeout safely
@@ -117,23 +132,23 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
                         </TouchableOpacity>
 
                         {/* Thumbnail */}
-                        
-                         <Image source={{ uri: story.disabled ? story.disabledThumbnailURL : story.thumbnailURL }}
+
+                        <Image source={{ uri: story.disabled ? story.disabledThumbnailURL : story.thumbnailURL }}
                             style={styles.thumbnail} resizeMode="cover" />
-                            
+
                         {story.disabled && <View style={styles.overlay}></View>}
-                       
-                       
+
+
 
                         {purchaseStatus === 'init' && (
                             <>
-                                {isBackendOnline && googlePlayAvailable && 
+                                {isBackendOnline && googlePlayAvailable &&
                                     <Text style={styles.instructionText}>If you want, you can unlock all my friends!!! 🎉✨</Text>}
-                                
+
                                 {!googlePlayAvailable && isBackendOnline &&
-                                    <Text style={styles.offlineText}>It seems you don't have a Google Play account available, 
-                                    so you can't unlock us... 😢😢</Text>}
-                                
+                                    <Text style={styles.offlineText}>It seems you don't have a Google Play account available,
+                                        so you can't unlock us... 😢😢</Text>}
+
                                 {!isBackendOnline &&
                                     <Text style={styles.offlineText}>I think you or Storyland is offline, so you can't unlock us  😢😢</Text>}
 
@@ -144,7 +159,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
                                         { backgroundColor: animatedBackgroundColor }, // Apply animated background color
                                     ]}
                                 >
-                                   <TouchableOpacity onPress={handleButtonPress}>
+                                    <TouchableOpacity onPress={handleButtonPress}>
                                         <Text style={styles.buttonText}>Unlock All 🔓</Text>
                                     </TouchableOpacity>
                                 </Animated.View>}
@@ -156,7 +171,7 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
                             <View>
                                 {!progressBarVisible && <ActivityIndicator size="large" color="rgb(0,0,0)" style={styles.pendingContainer} />}
                                 <Text style={styles.pendingText}>Can you please wait for a little bit? Unlocking all my friends... </Text>
-                                {progressBarVisible && <ProgressBar numResourcesCached={numResourcesCached} numTotal={numResourcesTotal} type='purchase'/>}
+                                {progressBarVisible && <ProgressBar numResourcesCached={numResourcesCached} numTotal={numResourcesTotal} type='purchase' />}
                             </View>
 
                         )}

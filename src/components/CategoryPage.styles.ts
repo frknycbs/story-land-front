@@ -68,7 +68,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isTablet: b
     grid: {
         position: 'absolute',
         zIndex: 1,
-        top: screenWidth > screenHeight ? screenHeight * 0.3 : (isTablet ? screenHeight * 0.25 : ( Math.max(screenHeight, screenWidth) > 700 ? screenHeight * 0.3 : screenHeight * 0.25) ),
+        top: screenWidth > screenHeight ? screenHeight * 0.3 : (isTablet ? screenHeight * 0.25 : ( Math.max(screenHeight, screenWidth) > 700 ? screenHeight * 0.3 : screenHeight * 0.3) ),
         left: 0,
         right: 0,
         bottom: 0,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, TouchableOpacity, ImageBackground, Text, ScrollView, Image, Animated } from 'react-native';
 import { Audio } from 'expo-av';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -6,9 +6,11 @@ import type { RootStackParamList } from '../../App';
 import { Story } from '../types';
 import { getStyles } from './StoryPage.styles';
 import getCachedResource from '../utils/getCachedResource';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import { useScreenDimensions } from '../hooks/useDimensions';
+import { useResources } from '../contexts/ResourceContext';
+import { constants } from '../constants';
 
 type StoryPageProps = NativeStackScreenProps<RootStackParamList, 'Story'>;
 
@@ -24,7 +26,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [isSliderVisible, setIsSliderVisible] = useState(true);
     const [isSpeakerVisible, setIsSpeakerVisible] = useState(false);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    
+
     const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
     const [fadeAnim] = useState(new Animated.Value(1));
@@ -37,8 +39,9 @@ export const StoryPage = ({ route }: StoryPageProps) => {
     const [sliderValue, setSliderValue] = useState(0)
     const [isScrubbing, setIsScrubbing] = useState<true | false>(false); // Track if user is scrubbing the slider
     const isScrubbingRef = useRef(false)
-  
-    
+
+    const { isBgMusicPlaying, setIsBgMusicPlaying, bgMusic } = useResources();
+
 
     const handleScreenPress = () => {
         if (isPlayPauseVisible) {
@@ -144,7 +147,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         loadStoryResources();
     }, []);
 
-    
+
     const handlePlayStoryAudio = async () => {
         if (!sound) {
             try {
@@ -219,7 +222,7 @@ export const StoryPage = ({ route }: StoryPageProps) => {
             isScrubbingRef.current = false
             startFadeoutTimer()
         }
-      };
+    };
 
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
@@ -227,9 +230,51 @@ export const StoryPage = ({ route }: StoryPageProps) => {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
+
+    const [isBackButtonPressed, setIsBackButtonPressed] = useState(false);
+    const [isBgMusicPaused, setIsBgMusicPaused] = useState(false);
+    const [isBgMusicResumed, setIsBgMusicResumed] = useState(false);
+
+    useEffect(() => {
+        const pauseBgMusic = async () => {
+            await bgMusic!.pauseAsync();
+            setIsBgMusicPaused(true);
+        }
+
+        pauseBgMusic()
+    }, [])
+
+    useEffect(() => {
+        if (isBackButtonPressed && isBgMusicPaused) {
+            const resumeBgMusic = async () => {
+                await bgMusic!.playAsync();
+                setIsBgMusicResumed(true);
+            }
+
+            resumeBgMusic()
+        }
+    }, [isBackButtonPressed, isBgMusicPaused])
+
+
+    useEffect(() => {
+        if(isBgMusicResumed)
+            navigation.goBack()
+    }, [isBgMusicResumed])
+
+    /**
+     * Handles the press event of the back button in the Story page.
+     * When pressed, it logs a message to the console and sets isBackButtonPressed to true.
+     * This is used to play the background music when the user navigates back from the Story page.
+     */
+
+    const handlePress = () => {
+        console.log("Back button pressed in story page")
+        setIsBackButtonPressed(true)
+    }
+
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity style={styles.backButton} onPress={() => handlePress()}>
                 <Image source={require('../assets/images/back_arrow.png')} style={styles.backArrowImage} />
             </TouchableOpacity>
 
@@ -266,14 +311,14 @@ export const StoryPage = ({ route }: StoryPageProps) => {
                     maximumValue={duration}
                     value={position}
                     onValueChange={(value) => {
-                        if(isScrubbing) {
+                        if (isScrubbing) {
                             setSliderValue(value)
                             // setPosition(value)
                         }
                         // console.log("User dragging: ", isScrubbing, "On change, position: ", position); 
                     }}
                     onSlidingComplete={handleSliderComplete}
-                    onSlidingStart={() => {setIsScrubbing(true); isScrubbingRef.current = true; cancelFadeoutTimer();}}
+                    onSlidingStart={() => { setIsScrubbing(true); isScrubbingRef.current = true; cancelFadeoutTimer(); }}
                     thumbTintColor="#fff"
                     minimumTrackTintColor="#fff"
                     maximumTrackTintColor="#000"

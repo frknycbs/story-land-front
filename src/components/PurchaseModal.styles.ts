@@ -24,8 +24,8 @@ export const getStyles = (screenWidth: number, screenHeight: number, isTablet: b
             width: 400,
             height: 500,
         } : { 
-            width: isPortrait ? 300 : 400,
-            height: isPortrait ? 420 : 320,
+            width: isPortrait ? 300 : 420,
+            height: isPortrait ? 420 : 300,
         }),
     },
 
@@ -133,7 +133,7 @@ export const getStyles = (screenWidth: number, screenHeight: number, isTablet: b
         textShadowColor: 'rgba(0, 0, 0, 1)',
         textShadowOffset: { width: 3, height: 2 },
         textShadowRadius: 2,
-        width: isTablet ? 300 : 200,
+        width: isTablet ? 300 : 220,
 
         ...!isPortrait && !isTablet && {
             top: 90,

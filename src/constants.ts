@@ -15,5 +15,6 @@ export const constants = {
     fontSizeLarge: 36,
     fontFamily: 'BubblegumSans',
     tabletSizeHeight: 1000,
-    tabletSizeWidth: 600
+    tabletSizeWidth: 600,
+    buttonWaitTime: 250
 }

@@ -1,10 +1,10 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, StyleSheet, SafeAreaView, ImageBackground } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from '../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { Audio } from 'expo-av';
 import { BackendHealth, BackendResource, Category, CategoryInfo, Story } from '../types';
 import { useFonts } from 'expo-font';
 import { Product, Purchase } from 'react-native-iap';
@@ -22,6 +22,12 @@ import { constants } from '../constants';
 export const SplashPage = () => {
     const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
 
+    const musicFiles = {
+        main: require("../assets/sounds/main.mp3"),
+        loading: require("../assets/sounds/loading.mp3"),
+        success: require("../assets/sounds/success.mp3"),
+    };
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
@@ -29,8 +35,8 @@ export const SplashPage = () => {
             alignItems: 'center',
         },
         logo: {
-            width: isTablet ? constants.imageSizeLarge : ( Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
-            height: isTablet ? constants.imageSizeLarge :  ( Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
+            width: isTablet ? constants.imageSizeLarge : (Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
+            height: isTablet ? constants.imageSizeLarge : (Math.min(screenHeight, screenWidth) > 350 ? constants.imageSizeMedium : constants.imageSizeSmall),
             resizeMode: 'contain',
         },
         logoText: {
@@ -42,9 +48,10 @@ export const SplashPage = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [areResourcesLoaded, setAreResourcesLoaded] = useState(false);
-    const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline, setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable } = useResources()
+    const { stories, setStories, categoryInfo, setCategoryInfo, isBackendOnline,
+        setIsBackendOnline, googlePlayAvailable, setGooglePlayAvailable, bgMusic, setBgMusic, isBgMusicPlaying, setIsBgMusicPlaying } = useResources()
 
-    
+
 
     const [fontsLoaded] = useFonts({
         'BubblegumSans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
@@ -53,10 +60,61 @@ export const SplashPage = () => {
     const [numResourcesCached, setNumResourcesCached] = useState<number>(0);
     const [numResourcesTotal, setNumResourcesTotal] = useState<number>(0);
     const [progressBarVisible, setProgressBarVisible] = useState(false);
+    const [currentChoice, setCurrentChoice] = useState<"loading" | "main">("loading")
+    const [isMainMusicPlaying, setIsMainMusicPlaying] = useState(false);
+    const [loadingMusic, setLoadingMusic] = useState<Audio.Sound | null>(null);
+    const [stopLoadingMusic, setStopLoadingMusic] = useState(false);
+    const [isLoadingMusicStopped, setIsLoadingMusicStopped] = useState(false); 
+
 
 
     useEffect(() => {
-       console.log("numResourcesCached: ", numResourcesCached, ", numResourcesTotal: ", numResourcesTotal)
+        const playLoadingMusic = async () => {
+            console.log("Loading music playing")
+            const { sound: newSound } = await Audio.Sound.createAsync(musicFiles["loading"], { shouldPlay: true, isLooping: true });
+            await newSound.playAsync();
+            console.log("Loading music played")
+            setLoadingMusic(newSound)
+        }
+
+        playLoadingMusic()
+
+    }, [])
+
+
+    useEffect(() => {
+        const handleStopLoadingMusic = async() => {
+            if(stopLoadingMusic && loadingMusic) {
+                await loadingMusic.stopAsync();
+                await loadingMusic.unloadAsync();
+                setIsLoadingMusicStopped(true);
+            }
+        }
+
+        handleStopLoadingMusic()
+    }, [stopLoadingMusic, loadingMusic])
+
+    useEffect(() => {
+        if(!isLoadingMusicStopped)
+            return 
+        const playMainMusic = async () => {
+            console.log("Inside playMainMusic")
+            const { sound: mainSound } = await Audio.Sound.createAsync(musicFiles["main"], { shouldPlay: true, isLooping: true });
+           
+            await mainSound.playAsync();
+            console.log("Main sound played")
+            setBgMusic(mainSound)
+            setIsBgMusicPlaying(true)
+
+            console.log("Setting isMainMusicPlayed")
+            setIsMainMusicPlaying(true)
+        }
+
+        playMainMusic()
+    }, [isLoadingMusicStopped])
+
+    useEffect(() => {
+        console.log("numResourcesCached: ", numResourcesCached, ", numResourcesTotal: ", numResourcesTotal)
     }, [numResourcesCached, numResourcesTotal]);
 
     // Load resources
@@ -97,7 +155,10 @@ export const SplashPage = () => {
                     setStories(resources.stories)
                     setCategoryInfo(resources.categoryInfo)
                     setAreResourcesLoaded(true)
+                    setStopLoadingMusic(true)
                 }
+
+
 
             } catch (error) {
                 console.error('Error loading resources:', error);
@@ -113,17 +174,20 @@ export const SplashPage = () => {
     useEffect(() => {
         console.log("areResourcesLoaded: ", areResourcesLoaded, ", fontsLoaded: ", fontsLoaded, ", googlePlayAvailable: ",
             googlePlayAvailable, ", isBackendOnline: ", isBackendOnline)
-        if (areResourcesLoaded && fontsLoaded) {
+        if (areResourcesLoaded && fontsLoaded && isMainMusicPlaying) {
             console.log("Backend resources and fonts loaded")
             setProgressBarVisible(false)
+
             navigation.reset({
                 index: 0,
                 routes: [{
                     name: 'Landing',
                 }],
-            });
+            })
+
+
         }
-    }, [areResourcesLoaded, navigation, googlePlayAvailable, isBackendOnline]);
+    }, [areResourcesLoaded, navigation, googlePlayAvailable, isBackendOnline, isMainMusicPlaying]);
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

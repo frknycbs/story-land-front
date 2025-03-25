@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Image, ImageBackground, Text, SafeAreaView, FlatList, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getCategoryInfo } from '../api/getCategoryInfo';
@@ -19,7 +19,7 @@ export const LandingPage = () => {
     const { stories, categoryInfo } = useResources();
 
     const { screenWidth, screenHeight, isTablet } = useScreenDimensions();
-   
+
 
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 3 : 2), [screenWidth, screenHeight]);
     const itemWidth = useMemo(() => screenWidth / numColumns, [screenWidth, numColumns]);
@@ -29,13 +29,14 @@ export const LandingPage = () => {
     const categoryIcons: Record<string, any> = {};
 
     for (const elem of categoryInfo) {
-            categoryIcons[elem.categoryName] = 
-            elem.categoryName ===  "animals" ? require(`../assets/images/animals_icon.png`) : 
-            elem.categoryName === "nature" ? require(`../assets/images/nature_icon.png`) : 
-            elem.categoryName === "space" ? require(`../assets/images/space_icon.png`) : 
-            require(`../assets/images/vehicles_icon.png`)
+        categoryIcons[elem.categoryName] =
+            elem.categoryName === "animals" ? require(`../assets/images/animals_icon.png`) :
+            elem.categoryName === "nature" ? require(`../assets/images/nature_icon.png`) :
+            elem.categoryName === "space" ? require(`../assets/images/space_icon.png`) :
+            elem.categoryName === "vehicles" ? require(`../assets/images/vehicles_icon.png`) :
+            elem.categoryName === "toys" ? require(`../assets/images/toys_icon.png`) : 
+            require(`../assets/images/home_icon.png`);
     }
-        
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -58,7 +59,9 @@ export const LandingPage = () => {
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 style={styles.thumbnail}
-                                onPress={() => navigation.navigate('Category', { categoryInfo: item })}
+                                onPress={() => {
+                                   navigation.navigate('Category', { categoryInfo: item });
+                                }}
                             >
                                 <ImageBackground
                                     source={{ uri: item.bgImageURL }}

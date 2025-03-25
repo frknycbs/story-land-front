@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, ImageBackground, ScrollView, Image, FlatList, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { getStoriesByCategory } from '../api/getStoriesByCategory';
@@ -37,10 +37,16 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     const numColumns = useMemo(() => (screenWidth > screenHeight ? 5 : 3), [screenWidth, screenHeight]);
     // Calculate item width dynamically
     const itemWidth = screenWidth / numColumns;
-   
+
     const styles = getStyles(screenWidth, screenHeight, isTablet, itemWidth);
 
     const generalStyles = getGeneralStyles(screenWidth, screenHeight);
+
+    const [isBackButtonPressed, setIsBackButtonPressed] = useState(false);
+    const [isThumbnailPressed, setIsThumbnailPressed] = useState(false);
+    const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+
+  
 
     const {
         connected,
@@ -178,15 +184,13 @@ export const CategoryPage = ({ route }: CategoryPageProps) => {
     }, []);
     */
 
-
-
     return (
         <>
             {/* Back Arrow */}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => {
-                    navigation.goBack(); // Logic for going back
+                   navigation.goBack();
                 }}
             >
                 <Image
