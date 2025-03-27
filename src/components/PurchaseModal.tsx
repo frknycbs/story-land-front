@@ -127,9 +127,9 @@ export const PurchaseModal = ({ visible, onClose, name, productId,
                         <Text style={styles.title}>Unlock All</Text>
 
                         {/* Close Icon */}
-                        <TouchableOpacity onPress={() => { clearAndClose(); }} style={styles.closeButton}>
+                        {purchaseStatus !== 'pending' && <TouchableOpacity onPress={() => { clearAndClose(); }} style={styles.closeButton}>
                             <Image source={require('../assets/images/close.png')} style={styles.closeImage} />
-                        </TouchableOpacity>
+                        </TouchableOpacity>}
 
                         {/* Thumbnail */}
 
